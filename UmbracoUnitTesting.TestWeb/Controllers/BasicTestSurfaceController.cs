@@ -34,5 +34,25 @@ namespace UmbracoUnitTesting.TestWeb.Controllers
         {
             return PartialView(null,this.Umbraco.GetDictionaryValue("Test Key"));
         }
+
+        public PartialViewResult BasicTypedContentMediaAction(int contentId, int mediaId)
+        {
+            return PartialView(null, new Tuple<string, string>(this.Umbraco.TypedContent(contentId).Name, this.Umbraco.TypedMedia(mediaId).Name));
+        }
+
+        public PartialViewResult BasicDynamicContentMediaAction(int contentId, int mediaId)
+        {
+            return PartialView(null, new Tuple<string, string>(this.Umbraco.Content(contentId).Name, this.Umbraco.Media(mediaId).Name));
+        }
+
+        public PartialViewResult BasicTypedSearchAction(string search_term)
+        {
+            return PartialView(null, Umbraco.TypedSearch(search_term).Count());
+        }
+
+        public PartialViewResult BasicAction()
+        {
+            
+        }
     }
 }
