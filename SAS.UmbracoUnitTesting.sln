@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UmbracoUnitTesting.TestWeb.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{5594B0A1-64D8-44F9-8173-6E3D93A118A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UmbracoUnitTesting", "UmbracoUnitTesting\UmbracoUnitTesting.csproj", "{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{1D87C61B-554F-4709-A21E-969A76B813A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D87C61B-554F-4709-A21E-969A76B813A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D87C61B-554F-4709-A21E-969A76B813A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

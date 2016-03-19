@@ -50,9 +50,31 @@ namespace UmbracoUnitTesting.TestWeb.Controllers
             return PartialView(null, Umbraco.TypedSearch(search_term).Count());
         }
 
-        public PartialViewResult BasicAction()
+        public PartialViewResult BasicContentTypeAction(int id)
         {
-            
+            var type = Umbraco.TypedContent(id);
+
+            var alias = type.ContentType.Alias;
+
+            return PartialView(null, alias);
+        }
+
+        public PartialViewResult BasicHasPropertyAction(int id, string property)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            var hasProperty = type.HasProperty(property);
+
+            return PartialView(null, hasProperty);
+        }
+
+        public PartialViewResult BasicGetPropertyAction(int id, string property)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            var val = type.GetProperty(property).Value;
+
+            return PartialView(null, val);
         }
     }
 }

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1D87C61B-554F-4709-A21E-969A76B813A7}</ProjectGuid>
+    <ProjectGuid>{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UmbracoUnitTesting.TestWeb.Test</RootNamespace>
-    <AssemblyName>UmbracoUnitTesting.TestWeb.Test</AssemblyName>
+    <RootNamespace>UmbracoUnitTesting</RootNamespace>
+    <AssemblyName>UmbracoUnitTesting</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -130,7 +130,6 @@
       <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
@@ -259,29 +258,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BasicHelpers.cs" />
-    <Compile Include="Controllers\BasicTestSurfaceControllerTest.cs" />
-    <Compile Include="Controllers\HelpersTestSurafaceControllerTest.cs" />
+    <Compile Include="MockServiceContext.cs" />
+    <Compile Include="UmbracoUnitTestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestClasses\TestDictResolver.cs" />
-    <Compile Include="TestClasses\TestPublishedContent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UmbracoUnitTesting.TestWeb\UmbracoUnitTesting.TestWeb.csproj">
-      <Project>{504b45a1-ec5f-42c1-822f-ea1ba648009b}</Project>
-      <Name>UmbracoUnitTesting.TestWeb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UmbracoUnitTesting\UmbracoUnitTesting.csproj">
-      <Project>{e01dcdd4-2372-4df4-bab7-34b252773a3d}</Project>
-      <Name>UmbracoUnitTesting</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
