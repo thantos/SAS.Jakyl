@@ -258,6 +258,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BootManager\CustomCoreBoot.cs" />
     <Compile Include="MockServiceContext.cs" />
     <Compile Include="UmbracoUnitTestHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -268,6 +269,10 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Fake\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

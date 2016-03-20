@@ -23,19 +23,19 @@ using Umbraco.Web;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
-
+using UmbracoUnitTesting.BootManager;
 
 namespace UmbracoUnitTesting
 {
     public static class UmbracoUnitTestHelper
     {
-        public static ApplicationContext GetApplicationContext(ServiceContext serviceContext = null, DatabaseContext databaseContext = null, CacheHelper cacheHelper = null, ILogger logger = null, IProfiler profiler = null, IWebRoutingSection webRoutingSection = null)
+        public static ApplicationContext GetApplicationContext(bool disabledCache = true, ServiceContext serviceContext = null, DatabaseContext databaseContext = null, CacheHelper cacheHelper = null, ILogger logger = null, IProfiler profiler = null, IWebRoutingSection webRoutingSection = null)
         {
 
             return ApplicationContext.EnsureContext(
                 databaseContext ?? GetDatabaseContext(logger: logger),
                 serviceContext ?? GetServiceContext(),
-                cacheHelper ?? /*CacheHelper.CreateDisabledCacheHelper()*/
+                disabledCache ? CacheHelper.CreateDisabledCacheHelper() : cacheHelper ?? /*CacheHelper.CreateDisabledCacheHelper()*/
                     GetCacheHelper(),
                 new ProfilingLogger(
                     logger ?? Mock.Of<ILogger>(),
@@ -121,7 +121,7 @@ namespace UmbracoUnitTesting
             return GetPublishedContentMock().Object;
         }
 
-        public static Mock<IPublishedContent> GetPublishedContentMock(string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null)
+        public static Mock<IPublishedContent> GetPublishedContentMock(string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null)
         {
             var mock = new Mock<IPublishedContent>();
             mock.Setup(s => s.Name).Returns(name);
@@ -147,6 +147,13 @@ namespace UmbracoUnitTesting
                 mock.Setup(s => s.Children).Returns(Children);
             else
                 mock.Setup(s => s.Children).Returns(() => new[] { GetPublishedContent() });
+            if (properties != null)
+            {
+                mock.Setup(s => s.GetProperty(It.IsAny<string>())).Returns<string>(a => properties.FirstOrDefault(s => s.PropertyTypeAlias == a));
+                mock.Setup(s => s.Properties).Returns(properties.ToList());
+            }
+            if (index.HasValue)
+                mock.Setup(s => s.GetIndex()).Returns(index.Value);
             return mock;
         }
 
@@ -178,6 +185,17 @@ namespace UmbracoUnitTesting
         public static PropertyType GetPropertyType(IDataTypeDefinition dataTypeDef = null, string alias = null)
         {
             return new PropertyType(dataTypeDef ?? Mock.Of<IDataTypeDefinition>(d => d.PropertyEditorAlias == "default"), string.IsNullOrEmpty(alias) ? "_umb_default" : alias); //use _umb_ to avoid StringExtentions (causes config loading errors)
+        }
+
+        public static IPublishedProperty GetPublishedProperty(object dataValue = null, object value = null, string alias = null)
+        {
+            var prop = new Mock<IPublishedProperty>();
+            prop.Setup(s => s.DataValue).Returns(dataValue);
+            prop.Setup(s => s.Value).Returns(value);
+            prop.Setup(s => s.HasValue).Returns(value != null);
+            prop.Setup(s => s.PropertyTypeAlias).Returns(alias);
+            return prop.Object;
+
         }
 
         public static ControllerContext GetControllerContext(UmbracoContext context, Controller controller, PublishedContentRequest publishedContentRequest = null)
@@ -212,17 +230,34 @@ namespace UmbracoUnitTesting
             };
         }
 
+        public static UmbracoApplication GetUmbracoApplication()
+        {
+            return new UmbracoApplication();
+        }
+
         /// <summary>
         /// To allow Helper.GetPublishedContentType and PublishedContentType.Get to work
         /// 
         /// https://github.com/umbraco/Umbraco-CMS/blob/67c3ea7c00f44cf3426a37c2cc62e7b561fc859a/src/Umbraco.Core/Models/PublishedContent/PublishedContentType.cs ln 133-170
         /// </summary>
         /// <param name="mockServiceContext"></param>
-        public static void SetupServicesForPublishedContentResolution(MockServiceContext mockServiceContext)
+        public static void SetupServicesForPublishedContentTypeResolution(MockServiceContext mockServiceContext, IEnumerable<PropertyType> propertyTypes = null)
         {
-            mockServiceContext.ContentTypeService.Setup(s => s.GetContentType(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IContentType>(alias: s));
-            mockServiceContext.ContentTypeService.Setup(s => s.GetMediaType(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IMediaType>(alias: s));
-            mockServiceContext.MemberTypeService.Setup(s => s.Get(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IMemberType>(alias: s));
+            mockServiceContext.ContentTypeService.Setup(s => s.GetContentType(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IContentType>(alias: s, propertyTypes: propertyTypes));
+            mockServiceContext.ContentTypeService.Setup(s => s.GetMediaType(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IMediaType>(alias: s, propertyTypes: propertyTypes));
+            mockServiceContext.MemberTypeService.Setup(s => s.Get(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IMemberType>(alias: s, propertyTypes: propertyTypes));
+        }
+
+        public static CoreBootManager StartCoreBootManager(UmbracoApplication umbracoApplication = null, ServiceContext serviceContext = null )
+        {
+            var bm = new CustomBoot(umbracoApplication ?? GetUmbracoApplication(), serviceContext ?? GetServiceContext());
+            bm.Initialize().Startup(null).Complete(null);
+            return bm;
+        }
+
+        public static void CleanupCoreBootManager(ApplicationContext appCtx = null)
+        {
+            (appCtx ?? GetApplicationContext()).DisposeIfDisposable();
         }
 
     }

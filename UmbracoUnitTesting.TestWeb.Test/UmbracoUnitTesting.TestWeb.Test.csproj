@@ -269,6 +269,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="umbracoSettings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UmbracoUnitTesting.TestWeb\UmbracoUnitTesting.TestWeb.csproj">

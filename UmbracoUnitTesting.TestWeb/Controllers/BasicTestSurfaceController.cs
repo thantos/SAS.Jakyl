@@ -76,5 +76,21 @@ namespace UmbracoUnitTesting.TestWeb.Controllers
 
             return PartialView(null, val);
         }
+
+        public PartialViewResult BasicPositionAction(int id)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            return PartialView(null, type.IsFirst());
+        }
+
+        ///Don't think we can test this ... Get culture requires UmbracoContext.ContentCache to be not null
+        public PartialViewResult BasicGetCultureAction(int id)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            return PartialView(null,type.GetCulture());
+        }
+
     }
 }

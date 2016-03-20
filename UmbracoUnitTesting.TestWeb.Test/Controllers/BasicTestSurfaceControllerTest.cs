@@ -23,6 +23,7 @@ using Umbraco.Web.Dictionary;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
+using UmbracoUnitTesting.BootManager;
 using UmbracoUnitTesting.TestWeb.Controllers;
 using UmbracoUnitTesting.TestWeb.Test.TestClasses;
 
@@ -438,14 +439,14 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var alias = "test_alias";
 
             //we need to mock a content type composition with our alias
-            var contentTypeComposition = new Mock<IContentTypeComposition>();
-            contentTypeComposition.Setup(s => s.Alias).Returns(alias);
-            //we are not going to give any property types because this will cause an error down the line
-            contentTypeComposition.Setup(s => s.CompositionPropertyTypes).Returns(new PropertyType[] { });
-
             var mockContentType = new Mock<IContentType>();
             mockContentType.Setup(s => s.Alias).Returns(alias);
+            //we are not going to give any property types because this will cause an error down the line
+            mockContentType.Setup(s => s.CompositionPropertyTypes).Returns(new PropertyType[] { });
 
+            //PublishedContentType.Get will eventually request a content type from one of the data services (content, media, member)
+            //In our case content
+            //We tell it which content type object to return
             mockContentService.Setup(s => s.GetContentType(alias)).Returns(mockContentType.Object);
 
             var ContentType = PublishedContentType.Get(PublishedItemType.Content, alias);
@@ -478,6 +479,176 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             Assert.AreEqual(alias, model);
         }
 
+        [TestMethod]
+        public void BasicHasPropertyTest()
+        {
+            //create a mock of the content type service
+            var mockContentService = new Mock<IContentTypeService>();
+            //this time we will make our own service context, which can take in all of the umbraco services
+            //Pass the context the mocked content service object
+            //core boot manager requires Services.TextService to not be null (pass in mock of ILocalizedTextService)
+            var serviceContext = new ServiceContext(contentTypeService: mockContentService.Object, localizedTextService: Mock.Of<ILocalizedTextService>());
+
+            var appCtx = ApplicationContext.EnsureContext(
+                new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), new SqlSyntaxProviders(new[] { Mock.Of<ISqlSyntaxProvider>() })),
+                serviceContext,
+                CacheHelper.CreateDisabledCacheHelper(),
+                new ProfilingLogger(
+                    Mock.Of<ILogger>(),
+                    Mock.Of<IProfiler>()), true);
+
+            var ctx = UmbracoContext.EnsureContext(
+                Mock.Of<HttpContextBase>(),
+                appCtx,
+                new Mock<WebSecurity>(null, null).Object,
+                Mock.Of<IUmbracoSettingsSection>(),
+                Enumerable.Empty<IUrlProvider>(), true);
+
+            //Have to use an inherited instance of boot manager to remove methods we can't use
+            var bm = new CustomBoot(new UmbracoApplication(), serviceContext);
+            bm.Initialize().Startup(null).Complete(null);
+
+            string ctAlias = "testAlias";
+            string propertyName = "testProp";
+            
+            //THIS TIME we do need a property type defined.... this is more complicated...
+            var mockContentType = new Mock<IContentType>();
+            mockContentType.Setup(s => s.Alias).Returns(ctAlias);
+            mockContentType.Setup(s => s.CompositionPropertyTypes).Returns(new PropertyType[] { new PropertyType(propertyName, DataTypeDatabaseType.Nvarchar, propertyName) });
+
+            mockContentService.Setup(s => s.GetContentType(ctAlias)).Returns(mockContentType.Object);
+
+            var ContentType = PublishedContentType.Get(PublishedItemType.Content, ctAlias);
+
+            var contentId = 2;
+            //get a mocked IPublishedContent
+            var contentMock = BasicHelpers.GetPublishedContentMock();
+            contentMock.Setup(s => s.ContentType).Returns(ContentType);
+
+            var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
+            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+
+            //give our dynamic query mock to the longer version of the UmbracoHelper constructor
+            var helper = new UmbracoHelper(ctx,
+                Mock.Of<IPublishedContent>(),
+                mockedTypedQuery.Object,
+                Mock.Of<IDynamicPublishedContentQuery>(),
+                Mock.Of<ITagQuery>(),
+                Mock.Of<IDataTypeService>(),
+                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section => section.UrlProviderMode == UrlProviderMode.Auto.ToString()), new[] { Mock.Of<IUrlProvider>() }),
+                Mock.Of<ICultureDictionary>(),
+                Mock.Of<IUmbracoComponentRenderer>(),
+                new MembershipHelper(ctx, Mock.Of<MembershipProvider>(), Mock.Of<RoleProvider>()));
+
+            var controller = new BasicTestSurfaceController(ctx, helper);
+            var res = controller.BasicHasPropertyAction(contentId,  propertyName);
+            var model = (bool)res.Model;
+
+            Assert.IsTrue(model);
+
+            //clean up resolved so we can use this again...
+            appCtx.DisposeIfDisposable();
+        }
+
+        /// <summary>
+        /// Pretty easy one actually, GetProperty is a method directly on the publishecontent interface
+        /// </summary>
+        [TestMethod]
+        public void BasicGetPropertyTest()
+        {
+            var appCtx = ApplicationContext.EnsureContext(
+                new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), new SqlSyntaxProviders(new[] { Mock.Of<ISqlSyntaxProvider>() })),
+                new ServiceContext(),
+                CacheHelper.CreateDisabledCacheHelper(),
+                new ProfilingLogger(
+                    Mock.Of<ILogger>(),
+                    Mock.Of<IProfiler>()), true);
+
+            var ctx = UmbracoContext.EnsureContext(
+                Mock.Of<HttpContextBase>(),
+                appCtx,
+                new Mock<WebSecurity>(null, null).Object,
+                Mock.Of<IUmbracoSettingsSection>(),
+                Enumerable.Empty<IUrlProvider>(), true);
+
+            string propertyName = "testProp";
+            string propValue = "testValue";
+
+            var propertyMock = new Mock<IPublishedProperty>();
+            propertyMock.Setup(s => s.Value).Returns(propValue);
+
+            var contentId = 2;
+            //get a mocked IPublishedContent
+            var contentMock = BasicHelpers.GetPublishedContentMock();
+            contentMock.Setup(s => s.GetProperty(propertyName)).Returns(propertyMock.Object);
+
+            var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
+            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+
+            //give our dynamic query mock to the longer version of the UmbracoHelper constructor
+            var helper = new UmbracoHelper(ctx,
+                Mock.Of<IPublishedContent>(),
+                mockedTypedQuery.Object,
+                Mock.Of<IDynamicPublishedContentQuery>(),
+                Mock.Of<ITagQuery>(),
+                Mock.Of<IDataTypeService>(),
+                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section => section.UrlProviderMode == UrlProviderMode.Auto.ToString()), new[] { Mock.Of<IUrlProvider>() }),
+                Mock.Of<ICultureDictionary>(),
+                Mock.Of<IUmbracoComponentRenderer>(),
+                new MembershipHelper(ctx, Mock.Of<MembershipProvider>(), Mock.Of<RoleProvider>()));
+
+            var controller = new BasicTestSurfaceController(ctx, helper);
+            var res = controller.BasicGetPropertyAction(contentId, propertyName);
+            var model = (string)res.Model;
+
+            Assert.AreEqual(propValue, model);
+        }
+
+        [TestMethod]
+        public void BasicPositionTest()
+        {
+            var appCtx = ApplicationContext.EnsureContext(
+                new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), new SqlSyntaxProviders(new[] { Mock.Of<ISqlSyntaxProvider>() })),
+                new ServiceContext(),
+                CacheHelper.CreateDisabledCacheHelper(),
+                new ProfilingLogger(
+                    Mock.Of<ILogger>(),
+                    Mock.Of<IProfiler>()), true);
+
+            var ctx = UmbracoContext.EnsureContext(
+                Mock.Of<HttpContextBase>(),
+                appCtx,
+                new Mock<WebSecurity>(null, null).Object,
+                Mock.Of<IUmbracoSettingsSection>(),
+                Enumerable.Empty<IUrlProvider>(), true);
+
+            var contentId = 2;
+            //get a mocked IPublishedContent
+            var contentMock = BasicHelpers.GetPublishedContentMock();
+            contentMock.Setup(s => s.GetIndex()).Returns(1);
+
+            var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
+            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+
+            //give our dynamic query mock to the longer version of the UmbracoHelper constructor
+            var helper = new UmbracoHelper(ctx,
+                Mock.Of<IPublishedContent>(),
+                mockedTypedQuery.Object,
+                Mock.Of<IDynamicPublishedContentQuery>(),
+                Mock.Of<ITagQuery>(),
+                Mock.Of<IDataTypeService>(),
+                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section => section.UrlProviderMode == UrlProviderMode.Auto.ToString()), new[] { Mock.Of<IUrlProvider>() }),
+                Mock.Of<ICultureDictionary>(),
+                Mock.Of<IUmbracoComponentRenderer>(),
+                new MembershipHelper(ctx, Mock.Of<MembershipProvider>(), Mock.Of<RoleProvider>()));
+
+            var controller = new BasicTestSurfaceController(ctx, helper);
+            var res = controller.BasicPositionAction(contentId);
+            var model = (bool)res.Model;
+
+            //not first
+            Assert.IsFalse(model);
+        }
 
     }
 }

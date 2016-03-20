@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Security;
+using Umbraco.Core;
 using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Dictionary;
 using Umbraco.Core.Models;
@@ -23,7 +24,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
     {
         [TestMethod]
         public void HelperActionTest()
-        {            
+        {
             //Setup UmbracoContext with mocks. Sets UmbracoContext.Current
             var ctx = UmbracoUnitTestHelper.GetUmbracoContext();
 
@@ -42,7 +43,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var ctx = UmbracoUnitTestHelper.GetUmbracoContext();
 
             var content = new TestPublishedContent() { Name = "test" };
-            
+
             var controller = new BasicTestSurfaceController();
             //Setting the controller context will provide the route data, route def, publushed content request, and current page to the surface controller
             controller.ControllerContext = UmbracoUnitTestHelper.GetControllerContext(ctx, controller, UmbracoUnitTestHelper.GetPublishedContentRequest(ctx, currentContent: content));
@@ -61,7 +62,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             //create an instance of our test implemention of IPublisheContent
             var content = new TestPublishedContent() { Name = "test" };
             //setup a helper object which will be given to the surface controller
-            var helper = UmbracoUnitTestHelper.GetUmbracoHelper( context: ctx, content: content);
+            var helper = UmbracoUnitTestHelper.GetUmbracoHelper(context: ctx, content: content);
             //we use a surface controller that takes in th context and helper so that we can setup them for our needs
             var controller = new BasicTestSurfaceController(ctx, helper);
             var res = controller.BasicPublishedContentAction();
@@ -93,7 +94,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
         {
             var ctx = UmbracoUnitTestHelper.GetUmbracoContext();
 
-            var mockContent = UmbracoUnitTestHelper.GetPublishedContentMock( name: "test");
+            var mockContent = UmbracoUnitTestHelper.GetPublishedContentMock(name: "test");
 
             UmbracoUnitTestHelper.SetPublishedContentRequest(ctx, UmbracoUnitTestHelper.GetPublishedContentRequest(ctx, currentContent: mockContent.Object));
 
@@ -217,16 +218,18 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             var ctx = UmbracoUnitTestHelper.GetUmbracoContext(appCtx);
 
-            var alias = "test_alias";
+            //pass in emtpy proprty types to avoid uninitialized resolver issue. To bypass, must use CoreBootManager
+            UmbracoUnitTestHelper.SetupServicesForPublishedContentTypeResolution(mocks, new PropertyType[] { });
 
-            UmbracoUnitTestHelper.SetupServicesForPublishedContentResolution(mocks);
-            
+            var alias = "test_alias";
+            var contentType = UmbracoUnitTestHelper.GetPublishedContentType(alias: alias);
+
             var contentId = 2;
             //get a mocked IPublishedContent
-            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock();
+            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock(contentType: contentType);
 
             var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
-            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+            mockedTypedQuery.Setup(s => s.TypedContent(It.IsAny<int>())).Returns(contentMock.Object);
 
             //give our dynamic query mock to the longer version of the UmbracoHelper constructor
             var helper = UmbracoUnitTestHelper.GetUmbracoHelper(ctx, typedQuery: mockedTypedQuery.Object);
@@ -237,5 +240,90 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             Assert.AreEqual(alias, model);
         }
+
+        [TestMethod]
+        public void HelperHasPropertyTest()
+        {
+            //Uses our special service context object (it mocks all services!!)
+            var mockServiceContext = new MockServiceContext();
+
+            var appCtx = UmbracoUnitTestHelper.GetApplicationContext(serviceContext: mockServiceContext.ServiceContext);
+            var ctx = UmbracoUnitTestHelper.GetUmbracoContext(appCtx);
+
+            UmbracoUnitTestHelper.StartCoreBootManager(serviceContext: mockServiceContext.ServiceContext);
+
+            string propertyName = "testProp";
+
+            //THIS TIME we do need a property type defined.... this is more complicated...
+            UmbracoUnitTestHelper.SetupServicesForPublishedContentTypeResolution(mockServiceContext, new[] { UmbracoUnitTestHelper.GetPropertyType(alias: propertyName) });
+
+            var contentId = 2;
+            //get a mocked IPublishedContent           
+            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock();
+
+            var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
+            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+
+            //give our dynamic query mock to the longer version of the UmbracoHelper constructor
+            var helper = UmbracoUnitTestHelper.GetUmbracoHelper(ctx, typedQuery: mockedTypedQuery.Object);
+
+            var controller = new BasicTestSurfaceController(ctx, helper);
+            var res = controller.BasicHasPropertyAction(contentId, propertyName);
+            var model = (bool)res.Model;
+
+            Assert.IsTrue(model);
+
+            //clean up resolved so we can use this again...
+            UmbracoUnitTestHelper.CleanupCoreBootManager(appCtx);
+        }
+
+        /// <summary>
+        /// Pretty easy one actually, GetProperty is a method directly on the publishecontent interface
+        /// </summary>
+        [TestMethod]
+        public void HelperGetPropertyTest()
+        {
+            var ctx = UmbracoUnitTestHelper.GetUmbracoContext();
+
+            var contentId = 2;
+            //get a mocked IPublishedContent
+            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock( properties: new[] { UmbracoUnitTestHelper.GetPublishedProperty(value: "testValue", alias: "testProp") } );
+
+            var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
+            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+                
+            //give our dynamic query mock to the longer version of the UmbracoHelper constructor
+            var helper = UmbracoUnitTestHelper.GetUmbracoHelper(ctx, typedQuery: mockedTypedQuery.Object);
+
+            var controller = new BasicTestSurfaceController(ctx, helper);
+            var res = controller.BasicGetPropertyAction(contentId, contentMock.Object.Properties.First().PropertyTypeAlias);
+            var model = (string)res.Model;
+
+            Assert.AreEqual(contentMock.Object.Properties.First().Value, model);
+        }
+
+        [TestMethod]
+        public void HelperPositionTest()
+        {
+            var ctx = UmbracoUnitTestHelper.GetUmbracoContext();
+
+            var contentId = 2;
+            //get a mocked IPublishedContent
+            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock(index: 1);
+
+            var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
+            mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);
+
+            //give our dynamic query mock to the longer version of the UmbracoHelper constructor
+            var helper = UmbracoUnitTestHelper.GetUmbracoHelper(ctx, typedQuery: mockedTypedQuery.Object);
+
+            var controller = new BasicTestSurfaceController(ctx, helper);
+            var res = controller.BasicPositionAction(contentId);
+            var model = (bool)res.Model;
+
+            Assert.IsFalse(model);
+        }
+
+
     }
 }
