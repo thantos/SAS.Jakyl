@@ -198,20 +198,20 @@ namespace UmbracoUnitTesting
 
         }
 
-        public static ControllerContext GetControllerContext(UmbracoContext context, Controller controller, PublishedContentRequest publishedContentRequest = null)
+        public static ControllerContext GetControllerContext(UmbracoContext context, Controller controller, PublishedContentRequest publishedContentRequest = null, RouteData routeData = null)
         {
             var contextBase = context.HttpContext;
 
-            var pcr = publishedContentRequest ?? context.PublishedContentRequest ?? GetPublishedContentRequest(context);
+            var pcr = publishedContentRequest ?? GetPublishedContentRequest(context);
 
             var routeDefinition = new RouteDefinition
             {
                 PublishedContentRequest = pcr
             };
 
-            var routeData = new RouteData();
-            routeData.DataTokens.Add("umbraco-route-def", routeDefinition);
-            return new ControllerContext(contextBase, routeData, controller);
+            var rd = routeData ?? new RouteData();
+            rd.DataTokens.Add("umbraco-route-def", routeDefinition);
+            return new ControllerContext(contextBase, rd, controller);
         }
 
         public static PublishedContentRequest SetPublishedContentRequest(UmbracoContext context = null, PublishedContentRequest request = null)

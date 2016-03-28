@@ -260,11 +260,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicHelpers.cs" />
+    <Compile Include="Controllers\BasicTestRenderMvcControllerTest.cs" />
     <Compile Include="Controllers\BasicTestSurfaceControllerTest.cs" />
     <Compile Include="Controllers\HelpersTestSurafaceControllerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestClasses\TestDictResolver.cs" />
     <Compile Include="TestClasses\TestPublishedContent.cs" />
+    <Compile Include="TestClasses\TestViewEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

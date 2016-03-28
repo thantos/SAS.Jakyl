@@ -234,9 +234,11 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
                 Mock.Of<IUmbracoSettingsSection>(),
                 Enumerable.Empty<IUrlProvider>(), true);
 
-            var test_name = "test";
+            //Set ApplicationContext and UmbracoContext
 
-            var valueDict = new Dictionary<string, string>() { { "Test Key", test_name } };
+            var test_value = "test";
+
+            var valueDict = new Dictionary<string, string>() { { "Test Key", test_value } };
 
             //we can create a mock of the culture dictionary interface and set any value we want
             var mockDict = new Mock<ICultureDictionary>();
@@ -245,12 +247,13 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             //This time we use the larger constructor for the Helper. In ther we will set the dictionary that we mocked
             var helper = new UmbracoHelper(ctx,
-                Mock.Of<IPublishedContent>(),
-                Mock.Of<ITypedPublishedContentQuery>(),
+                Mock.Of<IPublishedContent>(), Mock.Of<ITypedPublishedContentQuery>(),
                 Mock.Of<IDynamicPublishedContentQuery>(),
                 Mock.Of<ITagQuery>(),
                 Mock.Of<IDataTypeService>(),
-                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section => section.UrlProviderMode == UrlProviderMode.Auto.ToString()), new[] { Mock.Of<IUrlProvider>() }),
+                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section => 
+                    section.UrlProviderMode == UrlProviderMode.Auto.ToString()), 
+                    new[] { Mock.Of<IUrlProvider>() }),
                 mockDict.Object, //<--- set the dictionary
                 Mock.Of<IUmbracoComponentRenderer>(),
                 new MembershipHelper(ctx, Mock.Of<MembershipProvider>(), Mock.Of<RoleProvider>()));
@@ -259,7 +262,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var res = controller.BasicDictionaryAction();
             var model = res.Model as string;
 
-            Assert.AreEqual(test_name, model);
+            Assert.AreEqual(test_value, model);
         }
 
         [TestMethod]
@@ -522,7 +525,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             var contentId = 2;
             //get a mocked IPublishedContent
-            var contentMock = BasicHelpers.GetPublishedContentMock();
+            var contentMock = new Mock<IPublishedContent>();
             contentMock.Setup(s => s.ContentType).Returns(ContentType);
 
             var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
