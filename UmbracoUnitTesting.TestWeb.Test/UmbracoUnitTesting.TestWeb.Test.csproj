@@ -262,6 +262,7 @@
     <Compile Include="BasicHelpers.cs" />
     <Compile Include="Controllers\BasicTestRenderMvcControllerTest.cs" />
     <Compile Include="Controllers\BasicTestSurfaceControllerTest.cs" />
+    <Compile Include="Controllers\BasicTestUmbracoApiController.cs" />
     <Compile Include="Controllers\HelpersTestSurafaceControllerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestClasses\TestDictResolver.cs" />

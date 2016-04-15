@@ -2,9 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http;
+using System.Web.Http.Controllers;
+using System.Web.Http.Routing;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.Security;
@@ -212,6 +216,17 @@ namespace UmbracoUnitTesting
             var rd = routeData ?? new RouteData();
             rd.DataTokens.Add("umbraco-route-def", routeDefinition);
             return new ControllerContext(contextBase, rd, controller);
+        }
+
+        public static HttpControllerContext GetApiControllerContext(HttpRouteData routeData = null, HttpRequestMessage requestMessage = null, HttpConfiguration httpConfiguration = null)
+        {
+            var rd = routeData ?? new HttpRouteData(Mock.Of<IHttpRoute>());
+
+            var httpConfig = httpConfiguration ?? new HttpConfiguration();
+
+            var httpRequest = requestMessage ?? new HttpRequestMessage();
+
+            return new HttpControllerContext(httpConfig, rd, httpRequest);
         }
 
         public static PublishedContentRequest SetPublishedContentRequest(UmbracoContext context = null, PublishedContentRequest request = null)

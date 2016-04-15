@@ -339,6 +339,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\BasicRenderMvcController.cs" />
     <Compile Include="Controllers\BasicTestSurfaceController.cs" />
+    <Compile Include="Controllers\BasicUmbracoApiController.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
