@@ -32,7 +32,44 @@ less boiler plate.
 
 ## UmbracoUnitTest Engine
 
-#### Coming Soon. Name Pending.
+###THIS FEATURE IS IN ALPHA. SUBJECT TO CHANGE AT ANY TIME
+Always create a new instance before each test and dispose after each test 
+(*see test project for examples*)
+
+`
+UmbracoUnitTestEngine _unitTestEngine = new UmbracoUnitTestEngine();
+`
+
+The general pattern currently is to declate what is needed for the current 
+test by using the With* methods.
+
+For example, to set the current page during the test, use `WithCurrentPage()`. 
+
+`
+_unitTestEngine.WithCurrentPage();
+`
+
+In many cases, important values such as names, aliases, or IDs will be 
+automatically assigned either using AutoFixture, Random, or a Unique ID 
+system which is not always being used (only content and media currently use it).
+Due to this, leaving such fields empty might benifit the test. 
+(*see test project for examples*)
+
+To add content for TypedContent or DynamicContent look ups, use 
+`WithPublishedContentPage()`. A similar method exists for media: `WithPublishedMedia()`;
+
+In some cases (like when defining the `CurrentPage` object), the controller 
+either needs to have values assigned or a safety check needs to be made.
+Use `RegisterController` at any time (before the non-test code is run)
+to make sure all controller based operations are considered. If the code
+doesn't involve a MVC Controller or API Controller, no registration is
+nessecary. 
+
+The engine **SHOULD** resolve all dependancies for items which are 
+requested and allow for little to no boilerplate code.
+
+This is a work in progress and community involvment is appreciated. 
+Together we can cover every possible situation with grace and poise.
 
 ## Nuget
 
