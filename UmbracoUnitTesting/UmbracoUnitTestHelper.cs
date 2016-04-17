@@ -33,9 +33,8 @@ namespace UmbracoUnitTesting
 {
     public static class UmbracoUnitTestHelper
     {
-        public static ApplicationContext GetApplicationContext(bool disabledCache = true, ServiceContext serviceContext = null, DatabaseContext databaseContext = null, CacheHelper cacheHelper = null, ILogger logger = null, IProfiler profiler = null, IWebRoutingSection webRoutingSection = null)
+        public static ApplicationContext GetApplicationContext(bool disabledCache = true, ServiceContext serviceContext = null, DatabaseContext databaseContext = null, CacheHelper cacheHelper = null, ILogger logger = null, IProfiler profiler = null)
         {
-
             return ApplicationContext.EnsureContext(
                 databaseContext ?? GetDatabaseContext(logger: logger),
                 serviceContext ?? GetServiceContext(),
@@ -125,9 +124,13 @@ namespace UmbracoUnitTesting
             return GetPublishedContentMock().Object;
         }
 
-        public static Mock<IPublishedContent> GetPublishedContentMock(string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null)
+        public static Mock<IPublishedContent> GetPublishedContentMock(string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null, PublishedItemType itemType = PublishedItemType.Content)
         {
-            var mock = new Mock<IPublishedContent>();
+            return SetPublishedContentMock(new Mock<IPublishedContent>(), name, id, path, url, templateId, updateDate, createDate, contentType, parent, Children, properties, index, itemType);
+        }
+
+        public static Mock<IPublishedContent> SetPublishedContentMock(Mock<IPublishedContent> mock, string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null, PublishedItemType itemType = PublishedItemType.Content)
+        {
             mock.Setup(s => s.Name).Returns(name);
             if (id.HasValue)
                 mock.Setup(s => s.Id).Returns(id.Value);
@@ -158,6 +161,7 @@ namespace UmbracoUnitTesting
             }
             if (index.HasValue)
                 mock.Setup(s => s.GetIndex()).Returns(index.Value);
+            mock.Setup(s => s.ItemType).Returns(itemType);
             return mock;
         }
 
@@ -168,7 +172,7 @@ namespace UmbracoUnitTesting
             mock.Setup(s => s.Id).Returns(id.HasValue ? id.Value : new Random().Next());
             mock.Setup(s => s.Alias).Returns(alias);
             mock.Setup(s => s.Name).Returns(name);
-            mock.Setup(s => s.CompositionPropertyTypes).Returns(propertyTypes ?? new PropertyType[] { GetPropertyType() }); //Issue gettting converters
+            mock.Setup(s => s.CompositionPropertyTypes).Returns(propertyTypes ?? new PropertyType[] { }); //Issue gettting converters
             return mock.Object;
         }
         public static PublishedContentType GetPublishedContentType()
@@ -176,7 +180,7 @@ namespace UmbracoUnitTesting
             return GetPublishedContentType(PublishedItemType.Content);
         }
 
-        public static PublishedContentType GetPublishedContentType(PublishedItemType type = PublishedItemType.Content, string alias = "default", PublishedPropertyType DefaultType = null)
+        public static PublishedContentType GetPublishedContentType(PublishedItemType type = PublishedItemType.Content, string alias = "default")
         {
             return PublishedContentType.Get(type, alias);
         }
@@ -263,15 +267,25 @@ namespace UmbracoUnitTesting
             mockServiceContext.MemberTypeService.Setup(s => s.Get(It.IsAny<string>())).Returns<string>(s => GetContentTypeComposition<IMemberType>(alias: s, propertyTypes: propertyTypes));
         }
 
-        public static CoreBootManager StartCoreBootManager(UmbracoApplication umbracoApplication = null, ServiceContext serviceContext = null )
+        public static CustomBoot GetCustomBootManager(UmbracoApplication umbracoApplication = null, ServiceContext serviceContext = null)
         {
-            var bm = new CustomBoot(umbracoApplication ?? GetUmbracoApplication(), serviceContext ?? GetServiceContext());
-            bm.Initialize().Startup(null).Complete(null);
+            return new CustomBoot(umbracoApplication ?? GetUmbracoApplication(), serviceContext ?? GetServiceContext());
+        }
+
+        public static CoreBootManager StartCoreBootManager(CustomBoot bm = null)
+        {
+            bm = bm ?? GetCustomBootManager();
+            if (!bm.Initialized)
+                bm.Initialize();
+            if (!bm.Started)
+                bm.Startup(null);
+            if (!bm.Completed)
+                bm.Complete(null);
             return bm;
         }
 
         public static void CleanupCoreBootManager(ApplicationContext appCtx = null)
-        {
+        {            
             (appCtx ?? GetApplicationContext()).DisposeIfDisposable();
         }
 

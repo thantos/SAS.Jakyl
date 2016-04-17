@@ -250,7 +250,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var appCtx = UmbracoUnitTestHelper.GetApplicationContext(serviceContext: mockServiceContext.ServiceContext);
             var ctx = UmbracoUnitTestHelper.GetUmbracoContext(appCtx);
 
-            UmbracoUnitTestHelper.StartCoreBootManager(serviceContext: mockServiceContext.ServiceContext);
+            UmbracoUnitTestHelper.StartCoreBootManager( UmbracoUnitTestHelper.GetCustomBootManager(serviceContext: mockServiceContext.ServiceContext));
 
             string propertyName = "testProp";
 
