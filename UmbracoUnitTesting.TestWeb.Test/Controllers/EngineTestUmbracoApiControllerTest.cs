@@ -127,6 +127,17 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             Assert.IsFalse(res);
         }
 
+        [TestMethod]
+        public void EngineApiCurrentUserTest()
+        {
+            _unitTestEngine.WithCurrentUser();
+
+            var controller = new BasicUmbracoApiController(); //don't really care about the helper here
+            var model = controller.BasicUserAction();
+
+            Assert.IsNotNull(model);
+        }
+
         [TestCleanup]
         public void clean()
         {

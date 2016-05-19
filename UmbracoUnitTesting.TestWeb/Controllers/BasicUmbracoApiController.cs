@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web;
+using Umbraco.Core.Models.Membership;
 using Umbraco.Web;
 using Umbraco.Web.WebApi;
 
@@ -85,5 +86,16 @@ namespace UmbracoUnitTesting.TestWeb.Controllers
 
             return type.GetCulture();
         }
+
+        public IUser BasicUserAction()
+        {
+            return Security.CurrentUser;
+        }
+
+        public bool BasicIsAuthenticatedAction()
+        {
+            return Security.IsAuthenticated();
+        }
+
     }
 }

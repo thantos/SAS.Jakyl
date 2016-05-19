@@ -258,8 +258,9 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             UmbracoUnitTestHelper.SetupServicesForPublishedContentTypeResolution(mockServiceContext, new[] { UmbracoUnitTestHelper.GetPropertyType(alias: propertyName) });
 
             var contentId = 2;
-            //get a mocked IPublishedContent           
-            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock();
+            //get a mocked IPublishedContent
+            var contentType = UmbracoUnitTestHelper.GetPublishedContentType();
+            var contentMock = UmbracoUnitTestHelper.GetPublishedContentMock(contentType:contentType);
 
             var mockedTypedQuery = new Mock<ITypedPublishedContentQuery>();
             mockedTypedQuery.Setup(s => s.TypedContent(contentId)).Returns(contentMock.Object);

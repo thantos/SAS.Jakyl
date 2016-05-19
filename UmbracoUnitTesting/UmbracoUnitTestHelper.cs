@@ -18,6 +18,7 @@ using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Dictionary;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
@@ -48,13 +49,20 @@ namespace UmbracoUnitTesting
         public static UmbracoContext GetUmbracoContext(ApplicationContext applicationContext = null, IWebRoutingSection webRoutingSettings = null, HttpContextBase httpContext = null, WebSecurity webSecurity = null,
             IUmbracoSettingsSection settingsSection = null, IEnumerable<IUrlProvider> urlProviders = null)
         {
+            httpContext = httpContext ?? new Mock<HttpContextBase>().Object;
+            applicationContext = applicationContext ?? GetApplicationContext();
             return UmbracoContext.EnsureContext(
-                httpContext ?? new Mock<HttpContextBase>().Object,
-                applicationContext ?? GetApplicationContext(),
-                webSecurity ?? new Mock<WebSecurity>(null, null).Object,
+                httpContext,
+                applicationContext,
+                webSecurity ?? GetWebSecurity(http: httpContext, application: applicationContext),
                 settingsSection ?? Mock.Of<IUmbracoSettingsSection>(section => section.WebRouting == (webRoutingSettings ?? GetBasicWebRoutingSettings())),
                 urlProviders ?? Enumerable.Empty<IUrlProvider>(),
                 true);
+        }
+
+        public static WebSecurity GetWebSecurity(HttpContextBase http = null, ApplicationContext application = null)
+        {
+            return new WebSecurity(http ?? UmbracoContext.Current.HttpContext, application ?? GetApplicationContext());
         }
 
         public static CacheHelper GetCacheHelper(IRuntimeCacheProvider httpCache = null, ICacheProvider staticCache = null, ICacheProvider requestCache = null, IsolatedRuntimeCache isolastedRuntime = null)
@@ -124,12 +132,12 @@ namespace UmbracoUnitTesting
             return GetPublishedContentMock().Object;
         }
 
-        public static Mock<IPublishedContent> GetPublishedContentMock(string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null, PublishedItemType itemType = PublishedItemType.Content)
+        public static Mock<IPublishedContent> GetPublishedContentMock(string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null, PublishedItemType itemType = PublishedItemType.Content, string docType = null)
         {
-            return SetPublishedContentMock(new Mock<IPublishedContent>(), name, id, path, url, templateId, updateDate, createDate, contentType, parent, Children, properties, index, itemType);
+            return SetPublishedContentMock(new Mock<IPublishedContent>(), name, id, path, url, templateId, updateDate, createDate, contentType, parent, Children, properties, index, itemType, docType);
         }
 
-        public static Mock<IPublishedContent> SetPublishedContentMock(Mock<IPublishedContent> mock, string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null, PublishedItemType itemType = PublishedItemType.Content)
+        public static Mock<IPublishedContent> SetPublishedContentMock(Mock<IPublishedContent> mock, string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null, PublishedItemType itemType = PublishedItemType.Content, string docType = null)
         {
             mock.Setup(s => s.Name).Returns(name);
             if (id.HasValue)
@@ -144,23 +152,35 @@ namespace UmbracoUnitTesting
                 mock.Setup(s => s.TemplateId).Returns(templateId.Value);
             if (contentType != null)
                 mock.Setup(s => s.ContentType).Returns(contentType);
-            else
-                mock.Setup(s => s.ContentType).Returns(GetPublishedContentType);
+            //            else
+            //                mock.Setup(s => s.ContentType).Returns(GetPublishedContentType);
+            if (!string.IsNullOrEmpty(docType))
+            {
+                mock.Setup(s => s.DocumentTypeAlias).Returns(docType);
+            }
+            else if (mock.Object.ContentType != null)
+            {
+                mock.Setup(s => s.DocumentTypeAlias).Returns(mock.Object.ContentType.Alias);
+                mock.Setup(s => s.DocumentTypeId).Returns(mock.Object.ContentType.Id);
+            }
             if (parent != null)
                 mock.Setup(s => s.Parent).Returns(parent);
-            else
-                mock.Setup(s => s.Parent).Returns(GetPublishedContent);
+            //else
+            //    mock.Setup(s => s.Parent).Returns(GetPublishedContentMock(parent: null).Object /*GetPublishedContent*/); //was too dangerous to auto resolve parent like this
             if (Children != null)
                 mock.Setup(s => s.Children).Returns(Children);
-            else
-                mock.Setup(s => s.Children).Returns(() => new[] { GetPublishedContent() });
+            //else
+            //    mock.Setup(s => s.Children).Returns(() => new[] { GetPublishedContent() });
             if (properties != null)
             {
                 mock.Setup(s => s.GetProperty(It.IsAny<string>())).Returns<string>(a => properties.FirstOrDefault(s => s.PropertyTypeAlias == a));
                 mock.Setup(s => s.Properties).Returns(properties.ToList());
             }
             if (index.HasValue)
+            {
                 mock.Setup(s => s.GetIndex()).Returns(index.Value);
+                mock.Setup(s => s.Level).Returns(index.Value);
+            }
             mock.Setup(s => s.ItemType).Returns(itemType);
             return mock;
         }
@@ -285,8 +305,28 @@ namespace UmbracoUnitTesting
         }
 
         public static void CleanupCoreBootManager(ApplicationContext appCtx = null)
-        {            
+        {
             (appCtx ?? GetApplicationContext()).DisposeIfDisposable();
+        }
+
+        public static IUser GetUser(Mock<IUser> _user = null, int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false)
+        {
+            _user = _user ?? new Mock<IUser>();
+            _user.SetupAllProperties();
+            _user.SetupProperty(s => s.Comments, comments);
+            if (createDate.HasValue)
+                _user.SetupProperty(s => s.CreateDate, createDate.Value);
+            _user.SetupProperty(s => s.Name, name);
+            _user.SetupProperty(s => s.Email, email);
+            if (id.HasValue)
+                _user.SetupProperty(s => s.Id, id.Value);
+            _user.SetupProperty(s => s.IsApproved, isApproved);
+            _user.SetupProperty(s => s.IsLockedOut, isLocked);
+            _user.SetupProperty(s => s.Language, language);
+            _user.SetupProperty(s => s.Username, username);
+            if (updateDate.HasValue)
+                _user.SetupProperty(s => s.UpdateDate, updateDate.Value);
+            return _user.Object;
         }
 
     }

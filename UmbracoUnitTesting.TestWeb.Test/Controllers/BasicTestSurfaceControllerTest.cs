@@ -77,9 +77,10 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
                 Mock.Of<IUmbracoSettingsSection>(),
                 Enumerable.Empty<IUrlProvider>(), true);
 
-            string test_name = "test";
+            var contentMock = new Mock<IPublishedContent>();
+            contentMock.Setup(s => s.Name).Returns("test");
 
-            var content = new TestPublishedContent() { Name = test_name };
+            var content = contentMock.Object;
 
             //setup published content request. This sets the current content on the Umbraco Context and will be used later
             ctx.PublishedContentRequest = new PublishedContentRequest(new Uri("http://test.com"), ctx.RoutingContext,
@@ -97,7 +98,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             //We create a route data object to be given to the Controller context
             var routeData = new RouteData();
-            routeData.DataTokens.Add("umbraco-route-def", routeDefinition);
+            routeData.DataTokens.Add(Constants.Web.UmbracoRouteDefinitionDataToken, routeDefinition);
 
             var controller = new BasicTestSurfaceController();
             //Setting the controller context will provide the route data, route def, publushed content request, and current page to the surface controller
@@ -106,7 +107,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var res = controller.BasicCurrentPageAction();
             var model = res.Model as string;
 
-            Assert.AreEqual(test_name, model);
+            Assert.AreEqual(content.Name, model);
         }
 
         [TestMethod]
@@ -162,12 +163,10 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
                 Mock.Of<IUmbracoSettingsSection>(),
                 Enumerable.Empty<IUrlProvider>(), true);
 
-            var test_name = "test";
-
             //instead of using the implemenation of IPublishedContent, we mock IPublishedContent
             var mockContent = new Mock<IPublishedContent>();
             //We need to manually setup each field that is needed
-            mockContent.Setup(s => s.Name).Returns(test_name);
+            mockContent.Setup(s => s.Name).Returns("test");
             //give our content to the umbraco helper which will be given to the controller
             var helper = new UmbracoHelper(ctx, mockContent.Object);
 
@@ -175,7 +174,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var res = controller.BasicPublishedContentAction();
             var model = res.Model as string;
 
-            Assert.IsNotNull(test_name, model);
+            Assert.IsNotNull(mockContent.Object.Name, model);
         }
 
         [TestMethod]
@@ -251,8 +250,8 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
                 Mock.Of<IDynamicPublishedContentQuery>(),
                 Mock.Of<ITagQuery>(),
                 Mock.Of<IDataTypeService>(),
-                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section => 
-                    section.UrlProviderMode == UrlProviderMode.Auto.ToString()), 
+                new UrlProvider(ctx, Mock.Of<IWebRoutingSection>(section =>
+                    section.UrlProviderMode == UrlProviderMode.Auto.ToString()),
                     new[] { Mock.Of<IUrlProvider>() }),
                 mockDict.Object, //<--- set the dictionary
                 Mock.Of<IUmbracoComponentRenderer>(),
@@ -513,7 +512,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             string ctAlias = "testAlias";
             string propertyName = "testProp";
-            
+
             //THIS TIME we do need a property type defined.... this is more complicated...
             var mockContentType = new Mock<IContentType>();
             mockContentType.Setup(s => s.Alias).Returns(ctAlias);
@@ -544,7 +543,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
                 new MembershipHelper(ctx, Mock.Of<MembershipProvider>(), Mock.Of<RoleProvider>()));
 
             var controller = new BasicTestSurfaceController(ctx, helper);
-            var res = controller.BasicHasPropertyAction(contentId,  propertyName);
+            var res = controller.BasicHasPropertyAction(contentId, propertyName);
             var model = (bool)res.Model;
 
             Assert.IsTrue(model);

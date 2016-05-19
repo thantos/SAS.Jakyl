@@ -279,9 +279,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="umbracoSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UmbracoUnitTesting.Engine\UmbracoUnitTesting.Engine.csproj">

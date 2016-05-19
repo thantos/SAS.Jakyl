@@ -41,6 +41,20 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             Assert.AreEqual(model, content.Name);
         }
 
+        [TestMethod]
+        public void EngineGetSecurityTest()
+        {
+            _unitTestEngine.WithCurrentUser();
+
+            var controller = new BasicRenderMvcController(); //don't really care about the helper here
+
+            _unitTestEngine.RegisterController(controller);
+
+            var model = controller.BasicGetSecurityAction();
+
+            Assert.IsNotNull(model);
+        }
+
         [TestCleanup]
         public void clean()
         {

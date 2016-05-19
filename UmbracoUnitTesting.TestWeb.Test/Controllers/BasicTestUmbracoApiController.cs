@@ -12,6 +12,7 @@ using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Dictionary;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
@@ -483,6 +484,36 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
 
             //not first
             Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BasicApiCurrentUserTest()
+        {
+            var mockUser = new Mock<IUser>();
+
+            var mockWebSerc = new Mock<WebSecurity>(null, null);
+            mockWebSerc.Setup(s => s.CurrentUser).Returns(mockUser.Object);
+
+            var appCtx = ApplicationContext.EnsureContext(
+                new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), new SqlSyntaxProviders(new[] { Mock.Of<ISqlSyntaxProvider>() })),
+                new ServiceContext(),
+                CacheHelper.CreateDisabledCacheHelper(),
+                new ProfilingLogger(
+                    Mock.Of<ILogger>(),
+                    Mock.Of<IProfiler>()), true);
+
+            var ctx = UmbracoContext.EnsureContext(
+                Mock.Of<HttpContextBase>(),
+                appCtx,
+                mockWebSerc.Object,
+                Mock.Of<IUmbracoSettingsSection>(),
+                Enumerable.Empty<IUrlProvider>(), true);
+
+            var controller = new BasicUmbracoApiController(); //don't really care about the helper here
+
+            var model = controller.BasicUserAction();
+
+            Assert.IsNotNull(model);
         }
     }
 }

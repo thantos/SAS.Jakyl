@@ -18,15 +18,10 @@ namespace UmbracoUnitTesting.Engine
             _mocks[__global] = new Dictionary<Type, Mock>();
         }
 
-        public Mock<T> Resolve<T>(params object[] parameters)
+        public Mock<T> Resolve<T>(string scope = null, params object[] parameters)
             where T : class
         {
-            return this.Resolve<T>(__global, parameters);
-        }
-
-        public Mock<T> Resolve<T>(string scope, params object[] parameters)
-            where T : class
-        {
+            scope = !string.IsNullOrEmpty(scope) ? scope : __global;
             if (!_mocks.ContainsKey(scope))
             {
                 _mocks[scope] = new Dictionary<Type, Mock>();
@@ -38,13 +33,7 @@ namespace UmbracoUnitTesting.Engine
             return _mocks[scope][typeof(T)] as Mock<T>;
         }
 
-        public T ResolveObject<T>(params object[] parameters)
-            where T : class
-        {
-            return this.ResolveObject<T>(__global);
-        }
-
-        public T ResolveObject<T>(string scope, params object[] parameters)
+        public T ResolveObject<T>(string scope = null, params object[] parameters)
             where T: class
         {
             return Resolve<T>(scope, parameters).Object;

@@ -12,6 +12,7 @@ using Umbraco.Core;
 using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Core.Profiling;
@@ -92,6 +93,60 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var model = res.Model as string;
 
             Assert.AreEqual(model, content.Object.Name);
+        }
+
+        [TestMethod]
+        public void BasicCurrentUserTest()
+        {
+            var routeData = new RouteData();
+
+            var mockUser = new Mock<IUser>();
+
+            var mockWebSerc = new Mock<WebSecurity>(null,null);
+            mockWebSerc.Setup(s => s.CurrentUser).Returns(mockUser.Object);
+
+            var appCtx = ApplicationContext.EnsureContext(
+                new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), new SqlSyntaxProviders(new[] { Mock.Of<ISqlSyntaxProvider>() })),
+                new ServiceContext(),
+                CacheHelper.CreateDisabledCacheHelper(),
+                new ProfilingLogger(
+                    Mock.Of<ILogger>(),
+                    Mock.Of<IProfiler>()), true);
+
+            var ctx = UmbracoContext.EnsureContext(
+                Mock.Of<HttpContextBase>(),
+                appCtx,
+                mockWebSerc.Object,
+                Mock.Of<IUmbracoSettingsSection>(),
+                Enumerable.Empty<IUrlProvider>(), true);
+
+            var content = new Mock<IPublishedContent>();
+            content.Setup(s => s.Name).Returns("test");
+        
+            ctx.PublishedContentRequest = new PublishedContentRequest(new Uri("http://test.com"), ctx.RoutingContext,
+                Mock.Of<IWebRoutingSection>(section => section.UrlProviderMode == UrlProviderMode.AutoLegacy.ToString()),
+                s => new string[] { })
+                        {
+                            PublishedContent = content.Object
+                        };
+
+            //The reoute definition will contain the current page request object and be passed into the route data
+            var routeDefinition = new RouteDefinition
+            {
+                PublishedContentRequest = ctx.PublishedContentRequest
+            };
+
+            //We create a route data object to be given to the Controller context
+            routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, ctx.PublishedContentRequest);
+
+            var controller = new BasicRenderMvcController(ctx, new UmbracoHelper(ctx)); //don't really care about the helper here
+
+            controller.ControllerContext = new System.Web.Mvc.ControllerContext(ctx.HttpContext, routeData, controller);
+
+            var res = controller.BasicGetSecurityAction() as PartialViewResult;
+            var model = res.Model as IUser;
+
+            Assert.IsNotNull(model);
         }
     }
 }

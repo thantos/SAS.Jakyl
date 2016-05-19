@@ -16,6 +16,7 @@ using Umbraco.Core.Configuration.UmbracoSettings;
 using Umbraco.Core.Dictionary;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
+using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
@@ -25,6 +26,7 @@ using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
+using Umbraco.Web.Security;
 using Umbraco.Web.WebApi;
 using UmbracoUnitTesting.BootManager;
 using UmbracoUnitTesting.ViewEngine;
@@ -71,9 +73,11 @@ namespace UmbracoUnitTesting.Engine
                 logger: _mocks.ResolveObject<ILogger>());
 
             this.UmbracoContext = UmbracoUnitTestHelper.GetUmbracoContext(ApplicationContext, httpContext: _mocks.ResolveObject<HttpContextBase>()
-                ,webRoutingSettings: _mocks.ResolveObject<IWebRoutingSection>());
+                ,webRoutingSettings: _mocks.ResolveObject<IWebRoutingSection>(), webSecurity: _mocks.ResolveObject<WebSecurity>("",null,null));
 
             this.EnforceUniqueContentIds = EnforceUniqueContentIds;
+
+            AffectsController(true, GiveRenderMvcControllerPublishedContextRouteData);
 
             _boot = UmbracoUnitTestHelper.GetCustomBootManager(serviceContext: ServiceContext);
         }
@@ -90,6 +94,7 @@ namespace UmbracoUnitTesting.Engine
         public bool HasApiController { get { return ApiController != null; } }
         public UmbracoHelper UmbracoHelper { get { return NeedsUmbracoHelper(); } }
         public IPublishedContent CurrentPage { get { return _mocks.ResolveObject<IPublishedContent>("Current"); } }
+        public IUser CurrentUser { get { return _mocks.ResolveObject<IUser>("Current"); } }
         #endregion
 
         public UmbracoHelper WithUmbracoHelper()
@@ -117,7 +122,8 @@ namespace UmbracoUnitTesting.Engine
 
         public IPublishedContent WithPublishedContentPage(Mock<IPublishedContent> mock = null, string name = null, int? id = null, string path = null, string url = null, int? templateId = null, DateTime? updateDate = null, DateTime? createDate = null, PublishedContentType contentType = null, IPublishedContent parent = null, IEnumerable<IPublishedContent> Children = null, IEnumerable<IPublishedProperty> properties = null, int? index = null)
         {
-
+            //TODO handle template alias and template ID and expentions like GetTemplateAlias
+            //TODO handle prev/following siblings
             var contentMock = UmbracoUnitTestHelper.SetPublishedContentMock(
                 mock ?? new Mock<IPublishedContent>(),
                 name ?? _Fixture.Create<string>(),
@@ -159,6 +165,28 @@ namespace UmbracoUnitTesting.Engine
         }
 
         //TODO add MEMBER
+
+        //TODO add current user (Mock WebSecurity and autofixt/mock IUser) - Use Case : WebApi.Security.CurrentUser.*
+
+        public IUser WithCurrentUser(int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false)
+        {
+            var usr = UmbracoUnitTestHelper.GetUser(_mocks.Resolve<IUser>("Current"),
+                id ?? _Fixture.Create<int>(),
+                name ?? _Fixture.Create<string>(),
+                username ?? _Fixture.Create<string>(),
+                email ?? _Fixture.Create<string>(),
+                comments ?? _Fixture.Create<string>(),
+                createDate ?? _Fixture.Create<DateTime>(),
+                updateDate ?? _Fixture.Create<DateTime>(),
+                language ?? _Fixture.Create<string>(),
+                isApproved,
+                isLocked);
+
+            _mocks.Resolve<WebSecurity>().Setup(s => s.CurrentUser).Returns(usr);
+
+            return usr;
+
+        }
 
         public PublishedContentType WithPublishedContentType(int? id = null, string name = null, string alias = null, IEnumerable<PropertyType> propertyTypes = null)
         {
@@ -349,6 +377,7 @@ namespace UmbracoUnitTesting.Engine
                         action();
             }
         }
+
         #endregion
 
         #region Give
@@ -392,6 +421,16 @@ namespace UmbracoUnitTesting.Engine
                 {
                     throw new Exception(string.Format("{0} must implement and use base constructor which takes in the Umrabco Helper. This allows the Umbraco Helper with mocked data to be passed in.", Controller.GetType().Name));//make a better excpetion class?
                 }
+            }
+        }
+
+        private void GiveRenderMvcControllerPublishedContextRouteData()
+        {
+            if(HasMvcController && Controller is RenderMvcController)
+            {
+                var routeData = NeedsRouteData();
+                routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, NeedsPublishedContentRequest());
+                AffectsController(false, GiveControllerContext);
             }
         }
 
