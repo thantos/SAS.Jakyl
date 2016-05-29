@@ -55,6 +55,48 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             Assert.IsNotNull(model);
         }
 
+        [TestMethod]
+        public void EngineIsAuthenticatedTest()
+        {
+            _unitTestEngine.WithAuthentication(true);
+
+            var controller = new BasicRenderMvcController();
+
+            _unitTestEngine.RegisterController(controller);
+
+            var model = controller.BasicIsAuthenticatedAction();
+
+            Assert.IsTrue((bool)model.Model);
+        }
+
+        [TestMethod]
+        public void EngineIsNotAuthenticatedTest()
+        {
+            _unitTestEngine.WithAuthentication(false);
+
+            var controller = new BasicRenderMvcController();
+
+            _unitTestEngine.RegisterController(controller);
+
+            var model = controller.BasicIsAuthenticatedAction();
+
+            Assert.IsFalse((bool)model.Model);
+        }
+
+        [TestMethod]
+        public void EngineGetUserIdTest()
+        {
+            var user = _unitTestEngine.WithCurrentUser();
+
+            var controller = new BasicRenderMvcController(); //don't really care about the helper here
+
+            _unitTestEngine.RegisterController(controller);
+
+            var model = controller.BasicGetUserIdAction();
+
+            Assert.AreEqual(user.Id, (int)model.Model);
+        }
+
         [TestCleanup]
         public void clean()
         {

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -21,6 +22,7 @@ using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Core.Profiling;
+using Umbraco.Core.Security;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -73,7 +75,8 @@ namespace UmbracoUnitTesting.Engine
                 logger: _mocks.ResolveObject<ILogger>());
 
             this.UmbracoContext = UmbracoUnitTestHelper.GetUmbracoContext(ApplicationContext, httpContext: _mocks.ResolveObject<HttpContextBase>()
-                ,webRoutingSettings: _mocks.ResolveObject<IWebRoutingSection>(), webSecurity: _mocks.ResolveObject<WebSecurity>("",null,null));
+                , webRoutingSettings: _mocks.ResolveObject<IWebRoutingSection>(),
+                webSecurity: _mocks.ResolveObject<WebSecurity>(null, _mocks.ResolveObject<HttpContextBase>(), null));
 
             this.EnforceUniqueContentIds = EnforceUniqueContentIds;
 
@@ -168,7 +171,7 @@ namespace UmbracoUnitTesting.Engine
 
         //TODO add current user (Mock WebSecurity and autofixt/mock IUser) - Use Case : WebApi.Security.CurrentUser.*
 
-        public IUser WithCurrentUser(int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false)
+        public IUser WithCurrentUser(int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false, int? startContentId = null, int? startMediaId = null)
         {
             var usr = UmbracoUnitTestHelper.GetUser(_mocks.Resolve<IUser>("Current"),
                 id ?? _Fixture.Create<int>(),
@@ -180,12 +183,60 @@ namespace UmbracoUnitTesting.Engine
                 updateDate ?? _Fixture.Create<DateTime>(),
                 language ?? _Fixture.Create<string>(),
                 isApproved,
-                isLocked);
+                isLocked,
+                startContentId ?? _Fixture.Create<int>(),
+                startMediaId ?? _Fixture.Create<int>());
 
-            _mocks.Resolve<WebSecurity>().Setup(s => s.CurrentUser).Returns(usr);
+            var userData = _mocks.Resolve<UserData>();
+            userData.SetupAllProperties();
+            userData.Object.Id = usr.Id;
+            userData.Object.RealName = usr.Name;
+            userData.Object.Username = usr.Username;
+            userData.Object.Culture = usr.Language;
+            userData.Object.StartContentNode = usr.StartContentId;
+            userData.Object.StartMediaNode = usr.StartMediaId;
+
+            var mockIdentity = _mocks.Resolve<UmbracoBackOfficeIdentity>(null, userData.Object);
+            mockIdentity.SetupAllProperties();
+            mockIdentity.Setup(s => s.IsAuthenticated).Returns(true);
+
+            var mockPricipal = _mocks.Resolve<IPrincipal>();
+            mockPricipal.Setup(s => s.Identity).Returns(mockIdentity.Object);
+
+            var httpContextMock = _mocks.Resolve<HttpContextBase>();
+            httpContextMock.Setup(s => s.User).Returns(mockPricipal.Object);
+
+            var webSec = _mocks.Resolve<WebSecurity>(null, _mocks.ResolveObject<HttpContextBase>(), null);
+            webSec.Setup(s => s.CurrentUser).Returns(usr);
+            webSec.Setup(s => s.GetUserId()).Returns(usr.Id);
 
             return usr;
+        }
 
+        /// <summary>
+        /// Sets up Security.IsAuthenticated and HttpContext.User.Identity.IsAuthenticated. Calls WithCurrentUser
+        /// </summary>
+        /// <param name="isAuthed"></param>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public bool WithAuthentication(bool isAuthed = true, int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false)
+        {
+            if (isAuthed)
+            {
+                WithCurrentUser(id, name, username, email, comments, createDate, updateDate, language, isApproved, isLocked);
+            }
+            else
+            {
+                var mockIdentity = _mocks.Resolve<IIdentity>();
+                mockIdentity.Setup(s => s.IsAuthenticated).Returns(isAuthed);
+
+                var mockPricipal = _mocks.Resolve<IPrincipal>();
+                mockPricipal.Setup(s => s.Identity).Returns(mockIdentity.Object);
+
+                var httpContextMock = _mocks.Resolve<HttpContextBase>();
+                httpContextMock.Setup(s => s.User).Returns(mockPricipal.Object);
+            }
+            return isAuthed;
         }
 
         public PublishedContentType WithPublishedContentType(int? id = null, string name = null, string alias = null, IEnumerable<PropertyType> propertyTypes = null)
@@ -426,7 +477,7 @@ namespace UmbracoUnitTesting.Engine
 
         private void GiveRenderMvcControllerPublishedContextRouteData()
         {
-            if(HasMvcController && Controller is RenderMvcController)
+            if (HasMvcController && Controller is RenderMvcController)
             {
                 var routeData = NeedsRouteData();
                 routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, NeedsPublishedContentRequest());

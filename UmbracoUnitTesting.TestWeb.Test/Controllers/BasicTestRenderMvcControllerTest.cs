@@ -3,6 +3,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -16,6 +17,7 @@ using Umbraco.Core.Models.Membership;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.SqlSyntax;
 using Umbraco.Core.Profiling;
+using Umbraco.Core.Security;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Models;
@@ -147,6 +149,72 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             var model = res.Model as IUser;
 
             Assert.IsNotNull(model);
+        }
+
+        [TestMethod]
+        public void BasicIsAuthenticatedTest()
+        {
+            var routeData = new RouteData();
+
+            var userData = new UserData();
+            userData.Id = 1;
+            userData.RealName = "test";
+            userData.Username = "test";
+            userData.Culture = "en";
+
+            var mockIdentity = new Mock<UmbracoBackOfficeIdentity>(userData);
+            mockIdentity.Setup(s => s.IsAuthenticated).Returns(true);
+
+            var mockPricipal = new Mock<IPrincipal>();
+            mockPricipal.Setup(s => s.Identity).Returns(mockIdentity.Object);
+
+            var httpContextMock = new Mock<HttpContextBase>();
+            httpContextMock.Setup(s => s.User).Returns(mockPricipal.Object);
+
+            var mockWebSerc = new Mock<WebSecurity>(httpContextMock.Object, null);
+
+            var appCtx = ApplicationContext.EnsureContext(
+                new DatabaseContext(Mock.Of<IDatabaseFactory>(), Mock.Of<ILogger>(), new SqlSyntaxProviders(new[] { Mock.Of<ISqlSyntaxProvider>() })),
+                new ServiceContext(),
+                CacheHelper.CreateDisabledCacheHelper(),
+                new ProfilingLogger(
+                    Mock.Of<ILogger>(),
+                    Mock.Of<IProfiler>()), true);
+
+            var ctx = UmbracoContext.EnsureContext(
+                httpContextMock.Object,
+                appCtx,
+                mockWebSerc.Object,
+                Mock.Of<IUmbracoSettingsSection>(),
+                Enumerable.Empty<IUrlProvider>(), true);
+
+            var content = new Mock<IPublishedContent>();
+            content.Setup(s => s.Name).Returns("test");
+
+            ctx.PublishedContentRequest = new PublishedContentRequest(new Uri("http://test.com"), ctx.RoutingContext,
+                Mock.Of<IWebRoutingSection>(section => section.UrlProviderMode == UrlProviderMode.AutoLegacy.ToString()),
+                s => new string[] { })
+            {
+                PublishedContent = content.Object
+            };
+
+            //The reoute definition will contain the current page request object and be passed into the route data
+            var routeDefinition = new RouteDefinition
+            {
+                PublishedContentRequest = ctx.PublishedContentRequest
+            };
+
+            //We create a route data object to be given to the Controller context
+            routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, ctx.PublishedContentRequest);
+
+            var controller = new BasicRenderMvcController(ctx, new UmbracoHelper(ctx)); //don't really care about the helper here
+
+            controller.ControllerContext = new System.Web.Mvc.ControllerContext(ctx.HttpContext, routeData, controller);
+
+            var res = controller.BasicIsAuthenticatedAction() as PartialViewResult;
+            var model = (bool)res.Model;
+
+            Assert.IsTrue(model);
         }
     }
 }

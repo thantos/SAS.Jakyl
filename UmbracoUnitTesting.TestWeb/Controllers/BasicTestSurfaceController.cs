@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Web;
 using System.Web.Mvc;
+using Umbraco.Core.Logging;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
@@ -92,6 +93,5 @@ namespace UmbracoUnitTesting.TestWeb.Controllers
             return PartialView(null,type.GetCulture());
         }
 
-        
     }
 }

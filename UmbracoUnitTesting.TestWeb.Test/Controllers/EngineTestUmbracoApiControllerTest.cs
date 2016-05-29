@@ -138,6 +138,28 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             Assert.IsNotNull(model);
         }
 
+        [TestMethod]
+        public void EngineApiIsAuthenticatedTest()
+        {
+            _unitTestEngine.WithAuthentication(true);
+
+            var controller = new BasicUmbracoApiController();
+            var model = controller.BasicIsAuthenticatedAction();
+
+            Assert.IsTrue(model);
+        }
+
+        [TestMethod]
+        public void EngineApiIsNotAuthenticatedTest()
+        {
+            _unitTestEngine.WithAuthentication(false);
+
+            var controller = new BasicUmbracoApiController();
+            var model = controller.BasicIsAuthenticatedAction();
+
+            Assert.IsFalse(model);
+        }
+
         [TestCleanup]
         public void clean()
         {

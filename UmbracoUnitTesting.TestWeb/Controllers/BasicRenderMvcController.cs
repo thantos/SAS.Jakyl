@@ -24,5 +24,15 @@ namespace UmbracoUnitTesting.TestWeb.Controllers
             return PartialView(Security.CurrentUser);
         }
 
+        public PartialViewResult BasicIsAuthenticatedAction()
+        {
+            return PartialView(Security.IsAuthenticated());
+        }
+
+        public PartialViewResult BasicGetUserIdAction()
+        {
+            return PartialView(Security.GetUserId());
+        }
+
     }
 }

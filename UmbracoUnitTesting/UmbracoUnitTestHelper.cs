@@ -309,7 +309,7 @@ namespace UmbracoUnitTesting
             (appCtx ?? GetApplicationContext()).DisposeIfDisposable();
         }
 
-        public static IUser GetUser(Mock<IUser> _user = null, int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false)
+        public static IUser GetUser(Mock<IUser> _user = null, int? id = null, string name = null, string username = null, string email = null, string comments = null, DateTime? createDate = null, DateTime? updateDate = null, string language = null, bool isApproved = true, bool isLocked = false, int? startContentId = null, int? startMediaId = null)
         {
             _user = _user ?? new Mock<IUser>();
             _user.SetupAllProperties();
@@ -324,6 +324,10 @@ namespace UmbracoUnitTesting
             _user.SetupProperty(s => s.IsLockedOut, isLocked);
             _user.SetupProperty(s => s.Language, language);
             _user.SetupProperty(s => s.Username, username);
+            if(startContentId.HasValue)
+                _user.SetupProperty(s => s.StartContentId, startContentId.Value);
+            if(startMediaId.HasValue)
+                _user.SetupProperty(s => s.StartMediaId, startMediaId.Value);
             if (updateDate.HasValue)
                 _user.SetupProperty(s => s.UpdateDate, updateDate.Value);
             return _user.Object;
