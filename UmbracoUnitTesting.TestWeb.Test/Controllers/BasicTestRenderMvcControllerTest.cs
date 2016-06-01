@@ -139,7 +139,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             };
 
             //We create a route data object to be given to the Controller context
-            routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, ctx.PublishedContentRequest);
+            routeData.DataTokens.Add(UmbConstants.Web.PublishedDocumentRequestDataToken, ctx.PublishedContentRequest);
 
             var controller = new BasicRenderMvcController(ctx, new UmbracoHelper(ctx)); //don't really care about the helper here
 
@@ -205,7 +205,7 @@ namespace UmbracoUnitTesting.TestWeb.Test.Controllers
             };
 
             //We create a route data object to be given to the Controller context
-            routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, ctx.PublishedContentRequest);
+            routeData.DataTokens.Add("umbraco-doc-request", ctx.PublishedContentRequest);
 
             var controller = new BasicRenderMvcController(ctx, new UmbracoHelper(ctx)); //don't really care about the helper here
 

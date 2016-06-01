@@ -1,5 +1,5 @@
 <div class="umb-overlay umb-overlay-{{position}}" on-outside-click="closeOverLay()">
-    <ng-form class="umb-overlay__form" name="overlayForm" novalidate val-form-manager>
+    <form class="umb-overlay__form" name="overlayForm" ng-submit="submitForm(model)" novalidate val-form-manager>
 
         <div class="umb-overlay-header">
             <h4 class="umb-overlay__title">{{model.title}}</h4>
@@ -44,9 +44,8 @@
                     <umb-button
                         button-style="success"
                         label="Confirm"
-                        type="button"
-                        disabled="!directive.enableConfirmButton"
-                        action="submitForm(model)">
+                        type="submit"
+                        disabled="!directive.enableConfirmButton">
                     </umb-button>
                 </div>
             </div>
@@ -65,11 +64,10 @@
                     label-key="{{model.submitButtonLabelKey}}"
                     label="{{model.submitButtonLabel}}"
                     ng-if="model.submit && model.hideSubmitButton !== true"
-                    type="button"
-                    action="submitForm(model)">
+                    type="submit">
                 </umb-button>
             </div>
 
         </div>
-    </ng-form>
+    </form>
 </div>

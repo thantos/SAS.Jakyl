@@ -480,7 +480,7 @@ namespace UmbracoUnitTesting.Engine
             if (HasMvcController && Controller is RenderMvcController)
             {
                 var routeData = NeedsRouteData();
-                routeData.DataTokens.Add(Constants.Web.PublishedDocumentRequestDataToken, NeedsPublishedContentRequest());
+                routeData.DataTokens.Add(UmbConstants.Web.PublishedDocumentRequestDataToken, NeedsPublishedContentRequest()); //changed to local constant to allow for 7.4.0
                 AffectsController(false, GiveControllerContext);
             }
         }
