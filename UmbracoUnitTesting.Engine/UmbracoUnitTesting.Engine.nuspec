@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+    <metadata>
+        <id>Thantos.Jakyl</id>
+        <version>0.1.0-alpha</version>
+        <title>Thantos Jakyl</title>
+        <authors>Sam Sussman,Chris Heil</authors>
+        <owners>Sam Sussman,Chris Heil</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <developmentDependency>true</developmentDependency>
+        <description>Provides a helper to create moq Umbraco service objects</description>
+        <language>es-US</language>
+        <tags>Umbraco CMS</tags>
+        <dependencies>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\UmbracoUnitTesting.Engine\bin\Debug\UmbracoUnitTesting.Engine.dll" target="lib\UmbracoUnitTesting.Engine.dll" />
+        <file src="..\UmbracoUnitTesting.Engine\bin\Debug\UmbracoUnitTesting.Engine.dll.config" target="lib\UmbracoUnitTesting.Engine.dll.config" />
+    </files>
+</package>

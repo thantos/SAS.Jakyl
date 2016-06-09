@@ -1,0 +1,2 @@
+nuget pack -IncludeReferencedProjects UmbracoUnitTesting/UmbracoUnitTesting.csproj -OutputDirectory Nuget
+nuget pack -IncludeReferencedProjects UmbracoUnitTesting.Engine/UmbracoUnitTesting.Engine.csproj -OutputDirectory Nuget
