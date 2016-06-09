@@ -14,8 +14,4 @@
         <dependencies>
         </dependencies>
     </metadata>
-    <files>
-        <file src="..\UmbracoUnitTesting\bin\Debug\UmbracoUnitTesting.dll" target="lib\UmbracoUnitTesting.dll" />
-        <file src="..\UmbracoUnitTesting\bin\Debug\UmbracoUnitTesting.dll.config" target="lib\UmbracoUnitTesting.dll.config" />
-    </files>
 </package>
