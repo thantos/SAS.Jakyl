@@ -281,21 +281,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UmbracoUnitTesting.Engine\SAS.Jakyl.csproj">
-      <Project>{494B7E91-E7CE-4B22-925C-AA8143458A76}</Project>
-      <Name>SAS.Jakyl</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UmbracoUnitTesting.TestWeb\SAS.Jakyl.TestWeb.csproj">
-      <Project>{504b45a1-ec5f-42c1-822f-ea1ba648009b}</Project>
-      <Name>SAS.Jakyl.TestWeb</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UmbracoUnitTesting\SAS.Jakyl.Core.csproj">
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SAS.Jakyl.Core\SAS.Jakyl.Core.csproj">
       <Project>{e01dcdd4-2372-4df4-bab7-34b252773a3d}</Project>
       <Name>SAS.Jakyl.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <ProjectReference Include="..\SAS.Jakyl.TestWeb\SAS.Jakyl.TestWeb.csproj">
+      <Project>{504b45a1-ec5f-42c1-822f-ea1ba648009b}</Project>
+      <Name>SAS.Jakyl.TestWeb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SAS.Jakyl\SAS.Jakyl.csproj">
+      <Project>{494b7e91-e7ce-4b22-925c-aa8143458a76}</Project>
+      <Name>SAS.Jakyl</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

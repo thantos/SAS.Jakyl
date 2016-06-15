@@ -98,7 +98,7 @@ namespace SAS.Jakyl.TestWeb.Test.Controllers
 
             //We create a route data object to be given to the Controller context
             var routeData = new RouteData();
-            routeData.DataTokens.Add("umbraco-doc-request", routeDefinition);
+            routeData.DataTokens.Add("umbraco-route-def", routeDefinition);
 
             var controller = new BasicTestSurfaceController();
             //Setting the controller context will provide the route data, route def, publushed content request, and current page to the surface controller
