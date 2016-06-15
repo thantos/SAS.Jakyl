@@ -13,7 +13,9 @@ should lead to more often unit tested Umbraco projects.
 
 I hope to keep up with new Umbraco releases. I welcome additional branches ported
 to older Umbraco versions, but it is my intention to backport at last to 7.3.8.
-As of 3/24/16 the project is using 7.4.2.
+
+~~As of 3/24/16 the project is using 7.4.2.~~
+As of 6/1/16 the project is using 7.4.0.
 
 ## Examples
 
@@ -74,4 +76,6 @@ Together we can cover every possible situation with grace and poise.
 
 ## Nuget
 
-Nuget package is live! Currently maked as prerelease. https://www.nuget.org/packages/SAS.Jakyl/
+[Nuget](https://www.nuget.org/packages/SAS.Jakyl/) package is live! Currently maked as prerelease. 
+
+`install-package SAS.Jakyl`
