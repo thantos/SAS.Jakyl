@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
 
-namespace UmbracoUnitTesting.TestWeb.Models
+namespace SAS.Jakyl.TestWeb.Models
 {
     public class IndexViewModel
     {

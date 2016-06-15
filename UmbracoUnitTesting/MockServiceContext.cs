@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Core.Services;
 
-namespace UmbracoUnitTesting
+namespace SAS.Jakyl.Core
 {
     public class MockServiceContext
     {

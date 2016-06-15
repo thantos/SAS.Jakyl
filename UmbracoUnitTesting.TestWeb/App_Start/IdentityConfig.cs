@@ -10,9 +10,9 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
-using UmbracoUnitTesting.TestWeb.Models;
+using SAS.Jakyl.TestWeb.Models;
 
-namespace UmbracoUnitTesting.TestWeb
+namespace SAS.Jakyl.TestWeb
 {
     public class EmailService : IIdentityMessageService
     {

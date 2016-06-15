@@ -21,10 +21,10 @@ using Umbraco.Core.Services;
 using Umbraco.Web;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
-using UmbracoUnitTesting.BootManager;
-using UmbracoUnitTesting.TestWeb.Controllers;
+using SAS.Jakyl.Core.BootManager;
+using SAS.Jakyl.TestWeb.Controllers;
 
-namespace UmbracoUnitTesting.TestWeb.Test.Controllers
+namespace SAS.Jakyl.TestWeb.Test.Controllers
 {
     [TestClass]
     public class BasicTestUmbracoApiController

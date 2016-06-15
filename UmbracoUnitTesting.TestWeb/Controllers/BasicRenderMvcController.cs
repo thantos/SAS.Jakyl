@@ -7,7 +7,7 @@ using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 
-namespace UmbracoUnitTesting.TestWeb.Controllers
+namespace SAS.Jakyl.TestWeb.Controllers
 {
     public class BasicRenderMvcController : RenderMvcController
     {

@@ -8,7 +8,7 @@ using Umbraco.Core.Persistence;
 using Umbraco.Core.Services;
 using Umbraco.Web;
 
-namespace UmbracoUnitTesting.BootManager
+namespace SAS.Jakyl.Core.BootManager
 {
     public class CustomBoot : CoreBootManager, IDisposable
     {

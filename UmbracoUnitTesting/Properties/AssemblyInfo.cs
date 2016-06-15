@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UmbracoUnitTesting")]
+[assembly: AssemblyTitle("SAS.Jakyl.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("RBA")]
-[assembly: AssemblyProduct("UmbracoUnitTesting")]
+[assembly: AssemblyProduct("SAS.Jakyl.Core")]
 [assembly: AssemblyCopyright("Copyright © RBA 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

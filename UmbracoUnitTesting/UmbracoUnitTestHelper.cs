@@ -28,9 +28,9 @@ using Umbraco.Web;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
-using UmbracoUnitTesting.BootManager;
+using SAS.Jakyl.Core.BootManager;
 
-namespace UmbracoUnitTesting
+namespace SAS.Jakyl.Core
 {
     public static class UmbracoUnitTestHelper
     {

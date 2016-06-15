@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Umbraco.Web.Models;
-using UmbracoUnitTesting.Engine;
-using UmbracoUnitTesting.TestWeb.Controllers;
+using SAS.Jakyl;
+using SAS.Jakyl.TestWeb.Controllers;
 
-namespace UmbracoUnitTesting.TestWeb.Test.Controllers
+namespace SAS.Jakyl.TestWeb.Test.Controllers
 {
 
     [TestClass]

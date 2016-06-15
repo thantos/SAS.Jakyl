@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace UmbracoUnitTesting.TestWeb
+namespace SAS.Jakyl.TestWeb
 {
     public class BundleConfig
     {

@@ -24,10 +24,11 @@ using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
-using UmbracoUnitTesting.TestWeb.Controllers;
-using UmbracoUnitTesting.TestWeb.Test.TestClasses;
+using SAS.Jakyl.TestWeb.Controllers;
+using SAS.Jakyl.TestWeb.Test.TestClasses;
+using SAS.Jakyl.Core;
 
-namespace UmbracoUnitTesting.TestWeb.Test.Controllers
+namespace SAS.Jakyl.TestWeb.Test.Controllers
 {
     [TestClass]
     public class BasicTestRenderMvcControllerTest

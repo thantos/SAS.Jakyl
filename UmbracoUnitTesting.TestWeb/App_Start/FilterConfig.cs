@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace UmbracoUnitTesting.TestWeb
+namespace SAS.Jakyl.TestWeb
 {
     public class FilterConfig
     {

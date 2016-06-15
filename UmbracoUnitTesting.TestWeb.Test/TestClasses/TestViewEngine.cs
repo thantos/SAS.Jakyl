@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
-namespace UmbracoUnitTesting.TestWeb.Test.TestClasses
+namespace SAS.Jakyl.TestWeb.Test.TestClasses
 {
     public class TestViewEngine : IViewEngine
     {

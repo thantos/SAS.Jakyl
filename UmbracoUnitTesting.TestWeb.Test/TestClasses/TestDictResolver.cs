@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Umbraco.Core.Dictionary;
 using Umbraco.Core.ObjectResolution;
 
-namespace UmbracoUnitTesting.TestWeb.Test.TestClasses
+namespace SAS.Jakyl.TestWeb.Test.TestClasses
 {
     class TestDictResolver : SingleObjectResolverBase<TestDictResolver, ICultureDictionaryFactory>
     {

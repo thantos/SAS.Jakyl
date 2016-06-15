@@ -7,7 +7,7 @@ using Umbraco.Core.Models.Membership;
 using Umbraco.Web;
 using Umbraco.Web.WebApi;
 
-namespace UmbracoUnitTesting.TestWeb.Controllers
+namespace SAS.Jakyl.TestWeb.Controllers
 {
     public class BasicUmbracoApiController : UmbracoApiController
     {

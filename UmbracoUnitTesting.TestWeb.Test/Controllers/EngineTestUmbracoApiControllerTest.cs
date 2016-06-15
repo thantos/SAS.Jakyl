@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UmbracoUnitTesting.Engine;
-using UmbracoUnitTesting.TestWeb.Controllers;
+using SAS.Jakyl;
+using SAS.Jakyl.TestWeb.Controllers;
+using SAS.Jakyl.Core;
 
-namespace UmbracoUnitTesting.TestWeb.Test.Controllers
+namespace SAS.Jakyl.TestWeb.Test.Controllers
 {
 
     [TestClass]

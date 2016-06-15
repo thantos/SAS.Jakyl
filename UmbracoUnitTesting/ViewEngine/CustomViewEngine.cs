@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
-namespace UmbracoUnitTesting.ViewEngine
+namespace SAS.Jakyl.Core.ViewEngine
 {
     public class CustomViewEngine : IViewEngine
     {

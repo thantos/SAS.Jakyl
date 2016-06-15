@@ -8,7 +8,7 @@ using Umbraco.Core.Logging;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
-namespace UmbracoUnitTesting.TestWeb.Controllers
+namespace SAS.Jakyl.TestWeb.Controllers
 {
     public class BasicTestSurfaceController : SurfaceController
     {

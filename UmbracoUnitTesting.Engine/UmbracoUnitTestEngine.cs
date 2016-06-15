@@ -30,10 +30,11 @@ using Umbraco.Web.Mvc;
 using Umbraco.Web.Routing;
 using Umbraco.Web.Security;
 using Umbraco.Web.WebApi;
-using UmbracoUnitTesting.BootManager;
-using UmbracoUnitTesting.ViewEngine;
+using SAS.Jakyl.Core.BootManager;
+using SAS.Jakyl.Core.ViewEngine;
+using SAS.Jakyl.Core;
 
-namespace UmbracoUnitTesting.Engine
+namespace SAS.Jakyl
 {
     public class UmbracoUnitTestEngine : IDisposable
     {

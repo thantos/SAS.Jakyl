@@ -5,9 +5,9 @@ using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
-using UmbracoUnitTesting.TestWeb.Models;
+using SAS.Jakyl.TestWeb.Models;
 
-namespace UmbracoUnitTesting.TestWeb
+namespace SAS.Jakyl.TestWeb
 {
     public partial class Startup
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{E01DCDD4-2372-4DF4-BAB7-34B252773A3D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UmbracoUnitTesting</RootNamespace>
-    <AssemblyName>UmbracoUnitTesting</AssemblyName>
+    <RootNamespace>SAS.Jakyl.Core</RootNamespace>
+    <AssemblyName>SAS.Jakyl.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -268,7 +268,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="UmbracoUnitTesting.nuspec" />
+    <None Include="SAS.Jakyl.Core.nuspec" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

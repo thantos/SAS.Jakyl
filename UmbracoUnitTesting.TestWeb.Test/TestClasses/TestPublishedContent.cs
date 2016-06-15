@@ -7,7 +7,7 @@ using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 
-namespace UmbracoUnitTesting.TestWeb.Test
+namespace SAS.Jakyl.TestWeb.Test
 {
     public class TestPublishedContent : IPublishedContent
     {

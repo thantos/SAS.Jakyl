@@ -281,17 +281,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\UmbracoUnitTesting.Engine\UmbracoUnitTesting.Engine.csproj">
+    <ProjectReference Include="..\UmbracoUnitTesting.Engine\SAS.Jakyl.csproj">
       <Project>{494B7E91-E7CE-4B22-925C-AA8143458A76}</Project>
-      <Name>UmbracoUnitTesting.Engine</Name>
+      <Name>SAS.Jakyl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UmbracoUnitTesting.TestWeb\UmbracoUnitTesting.TestWeb.csproj">
+    <ProjectReference Include="..\UmbracoUnitTesting.TestWeb\SAS.Jakyl.TestWeb.csproj">
       <Project>{504b45a1-ec5f-42c1-822f-ea1ba648009b}</Project>
-      <Name>UmbracoUnitTesting.TestWeb</Name>
+      <Name>SAS.Jakyl.TestWeb</Name>
     </ProjectReference>
-    <ProjectReference Include="..\UmbracoUnitTesting\UmbracoUnitTesting.csproj">
+    <ProjectReference Include="..\UmbracoUnitTesting\SAS.Jakyl.Core.csproj">
       <Project>{e01dcdd4-2372-4df4-bab7-34b252773a3d}</Project>
-      <Name>UmbracoUnitTesting</Name>
+      <Name>SAS.Jakyl.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

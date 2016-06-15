@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 
-namespace UmbracoUnitTesting.TestWeb.Test
+namespace SAS.Jakyl.TestWeb.Test
 {
     public static class BasicHelpers
     {
