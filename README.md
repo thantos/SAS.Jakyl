@@ -74,7 +74,4 @@ Together we can cover every possible situation with grace and poise.
 
 ## Nuget
 
-#### Coming Soon
-
-Please poke me if you are reading this in a month and it still says coming soon. 
-
+Nuget package is live! Currently maked as prerelease. https://www.nuget.org/packages/SAS.Jakyl/
