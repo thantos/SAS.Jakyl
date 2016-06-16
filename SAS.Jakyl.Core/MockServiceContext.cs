@@ -51,11 +51,32 @@ namespace SAS.Jakyl.Core
 
         public MockServiceContext()
         {
-            this.ServiceContext = new ServiceContext(ContentService.Object, MediaService.Object, ContentTypeService.Object, DataTypeService.Object, FileService.Object, LocalizationService.Object,
-                PackagingService.Object, EntityService.Object, RelationService.Object, MemberGroupService.Object, MemberTypeService.Object, MemberService.Object,
-                UserService.Object, SectionService.Object, ApplicationTreeService.Object, TagService.Object, NotificationService.Object, TextService.Object, AuditService.Object, DomainService.Object,
-                TaskService.Object, MacroService.Object, PublicAccessService.Object, ExternalLoginService.Object,
-                MigrationEntryService.Object);
+            this.ServiceContext = new ServiceContext(
+                contentService: ContentService.Object,
+                mediaService: MediaService.Object,
+                contentTypeService: ContentTypeService.Object,
+                dataTypeService: DataTypeService.Object,
+                fileService: FileService.Object,
+                localizationService: LocalizationService.Object,
+                packagingService: PackagingService.Object,
+                entityService: EntityService.Object,
+                relationService: RelationService.Object,
+                memberGroupService: MemberGroupService.Object,
+                memberTypeService: MemberTypeService.Object,
+                memberService: MemberService.Object,
+                userService: UserService.Object,
+                sectionService: SectionService.Object,
+                treeService: ApplicationTreeService.Object,
+                tagService: TagService.Object,
+                notificationService: NotificationService.Object,
+                localizedTextService: TextService.Object,
+                auditService: AuditService.Object,
+                domainService: DomainService.Object,
+                taskService: TaskService.Object,
+                macroService: MacroService.Object,
+                publicAccessService: PublicAccessService.Object,
+                externalLoginService: ExternalLoginService.Object,
+                migrationEntryService: MigrationEntryService.Object);
         } //IContentService contentService = null, IMediaService mediaService = null, IContentTypeService contentTypeService = null, IDataTypeService dataTypeService = null, IFileService fileService = null, ILocalizationService localizationService = null, IPackagingService packagingService = null, IEntityService entityService = null, IRelationService relationService = null, IMemberGroupService memberGroupService = null, IMemberTypeService memberTypeService = null, IMemberService memberService = null, IUserService userService = null, ISectionService sectionService = null, IApplicationTreeService treeService = null, ITagService tagService = null, INotificationService notificationService = null, ILocalizedTextService localizedTextService = null, IAuditService auditService = null, IDomainService domainService = null, ITaskService taskService = null, IMacroService macroService = null, IPublicAccessService publicAccessService = null, IExternalLoginService externalLoginService = null, IMigrationEntryService migrationEntryService = null);
 
     }
