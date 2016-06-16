@@ -1,6 +1,8 @@
 # SAS.Jakyl 
 **(formerly SAS.UmbracoUnitTesting)**
 
+[![NuGet release](https://img.shields.io/nuget/v/SAS.Jakyl.svg)](https://www.nuget.org/packages/SAS.Jakyl)
+
 ## Introduction
 
 In an attempt to match our Umbraco development to our other CMS development, 
