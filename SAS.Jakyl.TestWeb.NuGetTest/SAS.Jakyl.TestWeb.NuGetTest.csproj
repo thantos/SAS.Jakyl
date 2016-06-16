@@ -160,11 +160,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SAS.Jakyl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SAS.Jakyl.0.1.0-alpha\lib\net452\SAS.Jakyl.dll</HintPath>
+      <HintPath>..\packages\SAS.Jakyl.0.1.1-alpha\lib\net452\SAS.Jakyl.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SAS.Jakyl.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SAS.Jakyl.Core.0.1.0-alpha\lib\net452\SAS.Jakyl.Core.dll</HintPath>
+      <HintPath>..\packages\SAS.Jakyl.Core.0.1.1-alpha\lib\net452\SAS.Jakyl.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Semver, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">

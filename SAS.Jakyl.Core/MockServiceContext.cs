@@ -37,13 +37,14 @@ namespace SAS.Jakyl.Core
         public Mock<ITaskService> TaskService = new Mock<ITaskService>();
         public Mock<ILocalizedTextService> TextService = new Mock<ILocalizedTextService>();
         public Mock<IUserService> UserService = new Mock<IUserService>();
+        public Mock<IRedirectUrlService> RedirectUrlService = new Mock<IRedirectUrlService>();
         public void Reset()
         {
             foreach (var service in new Mock[] {ContentService, MediaService, ContentTypeService, DataTypeService, FileService, LocalizationService,
                 PackagingService, EntityService, RelationService, MemberGroupService, MemberTypeService, MemberService,
                 UserService, SectionService, ApplicationTreeService, TagService, NotificationService, TextService, AuditService, DomainService,
                 TaskService, MacroService, PublicAccessService, ExternalLoginService,
-                MigrationEntryService})
+                MigrationEntryService, RedirectUrlService})
             {
                 service.Reset();
             }
@@ -76,8 +77,8 @@ namespace SAS.Jakyl.Core
                 macroService: MacroService.Object,
                 publicAccessService: PublicAccessService.Object,
                 externalLoginService: ExternalLoginService.Object,
-                migrationEntryService: MigrationEntryService.Object);
+                migrationEntryService: MigrationEntryService.Object,
+                redirectUrlService: RedirectUrlService.Object);
         } //IContentService contentService = null, IMediaService mediaService = null, IContentTypeService contentTypeService = null, IDataTypeService dataTypeService = null, IFileService fileService = null, ILocalizationService localizationService = null, IPackagingService packagingService = null, IEntityService entityService = null, IRelationService relationService = null, IMemberGroupService memberGroupService = null, IMemberTypeService memberTypeService = null, IMemberService memberService = null, IUserService userService = null, ISectionService sectionService = null, IApplicationTreeService treeService = null, ITagService tagService = null, INotificationService notificationService = null, ILocalizedTextService localizedTextService = null, IAuditService auditService = null, IDomainService domainService = null, ITaskService taskService = null, IMacroService macroService = null, IPublicAccessService publicAccessService = null, IExternalLoginService externalLoginService = null, IMigrationEntryService migrationEntryService = null);
-
     }
 }
