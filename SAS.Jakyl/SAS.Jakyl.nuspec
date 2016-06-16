@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>SAS.Jakyl</id>
-    <version>0.1.1-alpha</version>
+    <version>$version$-alpha</version>
     <title>SAS Jakyl</title>
     <authors>Sam Sussman,Chris Heil</authors>
     <owners>Sam Sussman,Chris Heil</owners>
@@ -12,6 +12,7 @@
     <language>es-US</language>
     <tags>Umbraco CMS Unit Testing</tags>
     <dependencies>
+      <dependency id="SAS.Jakyl.Core" version="[$version$,]" />
     </dependencies>
   </metadata>
   <files>
