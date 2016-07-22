@@ -3,7 +3,7 @@
     <metadata>
         <id>SAS.Jakyl.Core</id>
         <version>$version$-alpha</version>
-        <title>SAS Jakyl Core</title>
+        <title>SAS Jakyl Core (Umbraco Unit Testing)</title>
         <authors>Sam Sussman,Chris Heil</authors>
         <owners>Sam Sussman,Chris Heil</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
