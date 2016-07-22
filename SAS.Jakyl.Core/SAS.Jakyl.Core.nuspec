@@ -12,7 +12,7 @@
         <language>es-US</language>
         <tags>Umbraco CMS</tags>
         <dependencies>
-          <dependency id="UmbracoCMS.Core" version="[7.4.0, 7.5.0)" />
+          <dependency id="UmbracoCMS.Core" version="[7.3.0, 7.4.0)" />
         </dependencies>
     </metadata>
 </package>
