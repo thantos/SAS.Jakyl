@@ -93,5 +93,32 @@ namespace SAS.Jakyl.TestWeb.Controllers
             return PartialView(null,type.GetCulture());
         }
 
+        public PartialViewResult RelationChildAction(int child)
+        {
+            var relationService = ApplicationContext.Services.RelationService;
+
+            var rel = relationService.GetByChildId(child);
+
+            return PartialView(null, rel.First().Id);
+        }
+
+        public PartialViewResult RelationParentAction(int parent)
+        {
+            var relationService = ApplicationContext.Services.RelationService;
+
+            var rel = relationService.GetByParentId(parent);
+
+            return PartialView(null, rel.First().Id);
+        }
+
+        public PartialViewResult RelationAliasAction(string alias)
+        {
+            var relationService = ApplicationContext.Services.RelationService;
+
+            var rel = relationService.GetByRelationTypeAlias(alias);
+
+            return PartialView(null, rel.First().Id);
+        }
+
     }
 }

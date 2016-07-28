@@ -164,6 +164,42 @@ namespace SAS.Jakyl.TestWeb.Test.Controllers
             Assert.IsFalse(model);
         }
 
+        [TestMethod]
+        public void EngineRelationChildTest()
+        {
+            var relation = _unitTestEngine.WithRelation();
+
+            var controller = new BasicTestSurfaceController(_unitTestEngine.UmbracoContext, _unitTestEngine.UmbracoHelper);
+            var res = controller.RelationChildAction(relation.ChildId);
+            var model = (int)res.Model;
+
+            Assert.AreEqual(relation.Id, model);
+        }
+
+        [TestMethod]
+        public void EngineRelationParentTest()
+        {
+            var relation = _unitTestEngine.WithRelation();
+
+            var controller = new BasicTestSurfaceController(_unitTestEngine.UmbracoContext, _unitTestEngine.UmbracoHelper);
+            var res = controller.RelationParentAction(relation.ParentId);
+            var model = (int)res.Model;
+
+            Assert.AreEqual(relation.Id, model);
+        }
+
+        [TestMethod]
+        public void EngineRelationTypeAliasTest()
+        {
+            var relation = _unitTestEngine.WithRelation();
+
+            var controller = new BasicTestSurfaceController(_unitTestEngine.UmbracoContext, _unitTestEngine.UmbracoHelper);
+            var res = controller.RelationAliasAction(relation.RelationType.Alias);
+            var model = (int)res.Model;
+
+            Assert.AreEqual(relation.Id, model);
+        }
+
         [TestCleanup]
         public void clean()
         {

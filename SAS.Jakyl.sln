@@ -1,13 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{5594B0A1-64D8-44F9-8173-6E3D93A118A1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02365184-CBB9-4C36-859D-F845D15BF248}"
 	ProjectSection(SolutionItems) = preProject
 		PackJakyl.bat = PackJakyl.bat
+		Parallel1.runsettings = Parallel1.runsettings
 		README.md = README.md
 	EndProjectSection
 EndProject
