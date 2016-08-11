@@ -63,7 +63,13 @@ namespace SAS.Jakyl
 
         private bool _viewEngineCleared;
 
-        public UmbracoUnitTestEngine(Fixture autoFixture = null, bool EnforceUniqueContentIds = true)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="autoFixture"></param>
+        /// <param name="mockServiceContainer">A service container with mockable services. One is created if it isn't provided. Provide to manually mock all Umbraco services</param>
+        /// <param name="EnforceUniqueContentIds"></param>
+        public UmbracoUnitTestEngine(Fixture autoFixture = null, MockServiceContext mockServiceContainer = null, bool EnforceUniqueContentIds = true)
         {
             _Fixture = autoFixture ?? new Fixture();
 
@@ -71,7 +77,7 @@ namespace SAS.Jakyl
             Media = new List<IPublishedContent>();
 
             _mocks = new MockContainer();
-            mockServiceContext = new MockServiceContext();
+            mockServiceContext = mockServiceContainer ?? new MockServiceContext();
 
             this.ApplicationContext = UmbracoUnitTestHelper.GetApplicationContext(serviceContext: this.ServiceContext,
                 logger: _mocks.ResolveObject<ILogger>());
@@ -80,6 +86,8 @@ namespace SAS.Jakyl
                 httpContext: _mocks.ResolveObject<HttpContextBase>()
                 , webRoutingSettings: _mocks.ResolveObject<IWebRoutingSection>(),
                 webSecurity: _mocks.ResolveObject<WebSecurity>(null, _mocks.ResolveObject<HttpContextBase>(), null));
+
+            _mocks.Resolve<IWebRoutingSection>().Setup(s => s.UrlProviderMode).Returns(UrlProviderMode.AutoLegacy.ToString()); //needed for currenttemplate, IPublishedContent.UrlAbsolute
 
             this.EnforceUniqueContentIds = EnforceUniqueContentIds;
 
@@ -133,7 +141,7 @@ namespace SAS.Jakyl
             var contentMock = UmbracoUnitTestHelper.SetPublishedContentMock(
                 mock ?? new Mock<IPublishedContent>(),
                 name ?? _Fixture.Create<string>(),
-                ResolveUnqueContentId(id), path, url ?? _Fixture.Create<string>(),
+                ResolveUnqueContentId(id), path ?? _Fixture.Create<string>(), url ?? _Fixture.Create<string>(),
                 templateId, updateDate, createDate
                 , contentType, parent, Children, properties, index);
             var content = contentMock.Object;
@@ -167,7 +175,6 @@ namespace SAS.Jakyl
             _mocks.Resolve<HttpContextBase>().Setup(s => s.Items).Returns(new Dictionary<string, string>());
             NeedsPublishedContentRequest();
             NeedsCustomViewEngine(); //this also clears the standard view engines
-            _mocks.Resolve<IWebRoutingSection>().Setup(s => s.UrlProviderMode).Returns(UrlProviderMode.AutoLegacy.ToString());
         }
 
         //TODO add MEMBER
