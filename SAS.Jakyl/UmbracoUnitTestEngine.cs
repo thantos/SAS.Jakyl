@@ -52,7 +52,7 @@ namespace SAS.Jakyl
 
         private readonly MockContainer _mocks;
 
-        private readonly MockServiceContext mockServiceContext;
+        public MockServiceContext mockServiceContext { get; private set; } //making this public for now. 
 
         private UmbracoHelper _umbHelper;
         private RouteData _routeData;
