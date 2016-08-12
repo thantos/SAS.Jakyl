@@ -33,6 +33,7 @@ using Umbraco.Web.WebApi;
 using SAS.Jakyl.Core.BootManager;
 using SAS.Jakyl.Core.ViewEngine;
 using SAS.Jakyl.Core;
+using Umbraco.Core.Models.EntityBase;
 
 namespace SAS.Jakyl
 {
@@ -51,7 +52,7 @@ namespace SAS.Jakyl
 
         private readonly MockContainer _mocks;
 
-        private readonly MockServiceContext mockServiceContext;
+        public MockServiceContext mockServiceContext { get; private set; } //making this public for now. 
 
         private UmbracoHelper _umbHelper;
         private RouteData _routeData;
@@ -62,7 +63,13 @@ namespace SAS.Jakyl
 
         private bool _viewEngineCleared;
 
-        public UmbracoUnitTestEngine(Fixture autoFixture = null, bool EnforceUniqueContentIds = true)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="autoFixture"></param>
+        /// <param name="mockServiceContainer">A service container with mockable services. One is created if it isn't provided. Provide to manually mock all Umbraco services</param>
+        /// <param name="EnforceUniqueContentIds"></param>
+        public UmbracoUnitTestEngine(Fixture autoFixture = null, MockServiceContext mockServiceContainer = null, bool EnforceUniqueContentIds = true)
         {
             _Fixture = autoFixture ?? new Fixture();
 
@@ -70,14 +77,17 @@ namespace SAS.Jakyl
             Media = new List<IPublishedContent>();
 
             _mocks = new MockContainer();
-            mockServiceContext = new MockServiceContext();
+            mockServiceContext = mockServiceContainer ?? new MockServiceContext();
 
             this.ApplicationContext = UmbracoUnitTestHelper.GetApplicationContext(serviceContext: this.ServiceContext,
                 logger: _mocks.ResolveObject<ILogger>());
 
-            this.UmbracoContext = UmbracoUnitTestHelper.GetUmbracoContext(ApplicationContext, httpContext: _mocks.ResolveObject<HttpContextBase>()
+            this.UmbracoContext = UmbracoUnitTestHelper.GetUmbracoContext(ApplicationContext, 
+                httpContext: _mocks.ResolveObject<HttpContextBase>()
                 , webRoutingSettings: _mocks.ResolveObject<IWebRoutingSection>(),
                 webSecurity: _mocks.ResolveObject<WebSecurity>(null, _mocks.ResolveObject<HttpContextBase>(), null));
+
+            _mocks.Resolve<IWebRoutingSection>().Setup(s => s.UrlProviderMode).Returns(UrlProviderMode.AutoLegacy.ToString()); //needed for currenttemplate, IPublishedContent.UrlAbsolute
 
             this.EnforceUniqueContentIds = EnforceUniqueContentIds;
 
@@ -131,7 +141,7 @@ namespace SAS.Jakyl
             var contentMock = UmbracoUnitTestHelper.SetPublishedContentMock(
                 mock ?? new Mock<IPublishedContent>(),
                 name ?? _Fixture.Create<string>(),
-                ResolveUnqueContentId(id), path, url ?? _Fixture.Create<string>(),
+                ResolveUnqueContentId(id), path ?? _Fixture.Create<string>(), url ?? _Fixture.Create<string>(),
                 templateId, updateDate, createDate
                 , contentType, parent, Children, properties, index);
             var content = contentMock.Object;
@@ -165,7 +175,6 @@ namespace SAS.Jakyl
             _mocks.Resolve<HttpContextBase>().Setup(s => s.Items).Returns(new Dictionary<string, string>());
             NeedsPublishedContentRequest();
             NeedsCustomViewEngine(); //this also clears the standard view engines
-            _mocks.Resolve<IWebRoutingSection>().Setup(s => s.UrlProviderMode).Returns(UrlProviderMode.AutoLegacy.ToString());
         }
 
         //TODO add MEMBER
@@ -264,6 +273,33 @@ namespace SAS.Jakyl
             ViewEngines.Engines.Add(viewEngine);
         }
 
+        private List<IRelation> Relations;
+        private List<IRelationType> RelationTypes;
+
+        public IRelation WithRelation(IPublishedContent parent = null, IPublishedContent child = null, string alias = null, int? id = null)
+        {
+            NeedsRelationsSetup();
+            if (parent == null)
+                parent = WithPublishedContentPage();
+            if (child == null)
+                child = WithPublishedContentPage();
+            IRelationType relationType = null;
+            if(!string.IsNullOrEmpty(alias))
+            {
+                relationType = this.RelationTypes.FirstOrDefault(r => r.Alias == alias);
+            }
+            if(relationType == null)
+            {
+                relationType =  new RelationType(Guid.Empty, Guid.Empty, alias ?? _Fixture.Create<string>());
+                relationType.Id = _Fixture.Create<int>();
+                RelationTypes.Add(relationType);
+            }
+            var relation = new Relation(parent.Id, child.Id, relationType);
+            relation.Id = id ?? _Fixture.Create<int>();
+            this.Relations.Add(relation);
+            return relation;
+        }
+
         #region Controller Methods
 
         public void RegisterController(Controller controller)
@@ -296,6 +332,48 @@ namespace SAS.Jakyl
                 AffectsController(true, GiveControllerContext, EnsureControllerHasHelper);
             }
             return _umbHelper;
+        }
+
+        private void NeedsRelationsSetup()
+        {
+            if(Relations == null)
+            {
+                Relations = new List<IRelation>();
+                RelationTypes = new List<IRelationType>();
+
+                mockServiceContext.RelationService.Setup(s => s.GetAllRelations())
+                    .Returns(this.Relations);
+
+                mockServiceContext.RelationService.Setup(s => s.GetAllRelations(It.IsAny<int[]>()))
+                    .Returns<int[]>(ids => this.Relations.Where(r => ids.Contains(r.Id)));
+
+                mockServiceContext.RelationService.Setup(s => s.GetAllRelationsByRelationType(It.IsAny<int>())).Returns<int>(id => this.Relations.Where(r => r.RelationTypeId == id));
+                mockServiceContext.RelationService.Setup(s => s.GetByRelationTypeAlias(It.IsAny<string>())).Returns<string>(a => this.Relations.Where(r => r.RelationType.Alias == a));
+                mockServiceContext.RelationService.Setup(s => s.GetByRelationTypeId(It.IsAny<int>())).Returns<int>(a => this.Relations.Where(r => r.RelationType.Id == a));
+
+                mockServiceContext.RelationService.Setup(s => s.GetByChild(It.IsAny<IUmbracoEntity>())).Returns<IUmbracoEntity>(u=>this.Relations.Where(r=>u.Id == r.ChildId));
+                mockServiceContext.RelationService.Setup(s => s.GetByChildId(It.IsAny<int>())).Returns<int>(c => this.Relations.Where(r => c == r.ChildId));
+                mockServiceContext.RelationService.Setup(s => s.GetByParent(It.IsAny<IUmbracoEntity>())).Returns<IUmbracoEntity>(u => this.Relations.Where(r => u.Id == r.ParentId));
+                mockServiceContext.RelationService.Setup(s => s.GetByParentId(It.IsAny<int>())).Returns<int>(c => this.Relations.Where(r => c == r.ParentId));
+
+                mockServiceContext.RelationService.Setup(s => s.GetByParentOrChildId(It.IsAny<int>())).Returns<int>(s => this.Relations.Where(r => r.ParentId == s || r.ChildId == s));
+
+                mockServiceContext.RelationService.Setup(s => s.GetByChild(It.IsAny<IUmbracoEntity>(), It.IsAny<string>())).Returns<IUmbracoEntity,string>((u,a) => this.Relations.Where(r => u.Id == r.ChildId && a== r.RelationType.Alias ));
+                mockServiceContext.RelationService.Setup(s => s.GetByParent(It.IsAny<IUmbracoEntity>(), It.IsAny<string>())).Returns<IUmbracoEntity,string>((u,a) => this.Relations.Where(r => u.Id == r.ParentId && a == r.RelationType.Alias));
+
+                mockServiceContext.RelationService.Setup(s => s.GetByParentOrChildId(It.IsAny<int>(), It.IsAny<string>())).Returns<int,string>((s,a) => this.Relations.Where(r => (r.ParentId == s || r.ChildId == s) && a == r.RelationType.Alias));
+
+                mockServiceContext.RelationService.Setup(s => s.GetById(It.IsAny<int>())).Returns<int>(id => this.Relations.FirstOrDefault(r => r.Id == id));
+
+                mockServiceContext.RelationService.Setup(s => s.GetRelationTypeByAlias(It.IsAny<string>())).Returns<string>(a => this.RelationTypes.FirstOrDefault(r => r.Alias == a));
+                mockServiceContext.RelationService.Setup(s => s.GetRelationTypeById(It.IsAny<int>())).Returns<int>(a => this.RelationTypes.FirstOrDefault(r => r.Id == a));
+
+                //TODO Find a way to return content instead. We don't currently work with IUmbracoEntities  , so that will be new
+                mockServiceContext.RelationService.Setup(s => s.GetEntitiesFromRelation(It.IsAny<IRelation>(),It.IsAny<bool>())).Throws<NotImplementedException>();
+                mockServiceContext.RelationService.Setup(s => s.GetEntitiesFromRelations(It.IsAny<IEnumerable<IRelation>>(), It.IsAny<bool>())).Throws<NotImplementedException>();
+                mockServiceContext.RelationService.Setup(s => s.GetParentEntitiesFromRelations(It.IsAny<IEnumerable<IRelation>>(), It.IsAny<bool>())).Throws<NotImplementedException>();
+                mockServiceContext.RelationService.Setup(s => s.GetParentEntityFromRelation(It.IsAny<IRelation>(), It.IsAny<bool>())).Throws<NotImplementedException>();
+            }
         }
 
         private RouteData NeedsRouteData()

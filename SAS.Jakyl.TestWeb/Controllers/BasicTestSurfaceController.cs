@@ -78,6 +78,24 @@ namespace SAS.Jakyl.TestWeb.Controllers
             return PartialView(null, val);
         }
 
+        public PartialViewResult BasicGetPropertyValueAction(int id, string property)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            var val = type.GetPropertyValue(property);
+
+            return PartialView(null, val);
+        }
+
+        public PartialViewResult BasicGetPropertyValueTypeAction(int id, string property)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            var val = type.GetPropertyValue<string>(property);
+
+            return PartialView(null, val);
+        }
+
         public PartialViewResult BasicPositionAction(int id)
         {
             var type = Umbraco.TypedContent(id);
@@ -91,6 +109,33 @@ namespace SAS.Jakyl.TestWeb.Controllers
             var type = Umbraco.TypedContent(id);
 
             return PartialView(null,type.GetCulture());
+        }
+
+        public PartialViewResult RelationChildAction(int child)
+        {
+            var relationService = ApplicationContext.Services.RelationService;
+
+            var rel = relationService.GetByChildId(child);
+
+            return PartialView(null, rel.First().Id);
+        }
+
+        public PartialViewResult RelationParentAction(int parent)
+        {
+            var relationService = ApplicationContext.Services.RelationService;
+
+            var rel = relationService.GetByParentId(parent);
+
+            return PartialView(null, rel.First().Id);
+        }
+
+        public PartialViewResult RelationAliasAction(string alias)
+        {
+            var relationService = ApplicationContext.Services.RelationService;
+
+            var rel = relationService.GetByRelationTypeAlias(alias);
+
+            return PartialView(null, rel.First().Id);
         }
 
     }
