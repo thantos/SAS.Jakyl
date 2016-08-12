@@ -151,6 +151,40 @@ namespace SAS.Jakyl.TestWeb.Test.Controllers
             Assert.AreEqual(content.Properties.First().Value, model);
         }
 
+        /// <summary>
+        /// Pretty easy one actually, GetProperty is a method directly on the publishecontent interface
+        /// </summary>
+        [TestMethod]
+        public void EngineGetPropertyValueTest()
+        {
+            var value = "testValue";
+            var alias = "testAlias";
+            var content = _unitTestEngine.WithPublishedContentPage(properties: new[] { UmbracoUnitTestHelper.GetPublishedProperty(value: value, alias: alias) });
+
+            var controller = new BasicTestSurfaceController(_unitTestEngine.UmbracoContext, _unitTestEngine.UmbracoHelper);
+            var res = controller.BasicGetPropertyValueAction(content.Id, content.Properties.First().PropertyTypeAlias);
+            var model = (string)res.Model;
+
+            Assert.AreEqual(content.Properties.First().Value, model);
+        }
+
+        /// <summary>
+        /// Pretty easy one actually, GetProperty is a method directly on the publishecontent interface
+        /// </summary>
+        [TestMethod]
+        public void EngineGetPropertyValueTypeTest()
+        {
+            var value = "testValue";
+            var alias = "testAlias";
+            var content = _unitTestEngine.WithPublishedContentPage(properties: new[] { UmbracoUnitTestHelper.GetPublishedProperty(value: value, alias: alias) });
+
+            var controller = new BasicTestSurfaceController(_unitTestEngine.UmbracoContext, _unitTestEngine.UmbracoHelper);
+            var res = controller.BasicGetPropertyValueTypeAction(content.Id, content.Properties.First().PropertyTypeAlias);
+            var model = (string)res.Model;
+
+            Assert.AreEqual(content.Properties.First().Value, model);
+        }
+
 
         [TestMethod]
         public void EnginePositionTest()

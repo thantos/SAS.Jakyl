@@ -174,6 +174,7 @@ namespace SAS.Jakyl.Core
             if (properties != null)
             {
                 mock.Setup(s => s.GetProperty(It.IsAny<string>())).Returns<string>(a => properties.FirstOrDefault(s => s.PropertyTypeAlias == a));
+                mock.Setup(s => s.GetProperty(It.IsAny<string>(),It.IsAny<bool>())).Returns<string,bool>((a,b) => properties.FirstOrDefault(s => s.PropertyTypeAlias == a));
                 mock.Setup(s => s.Properties).Returns(properties.ToList());
             }
             if (index.HasValue)

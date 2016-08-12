@@ -78,6 +78,24 @@ namespace SAS.Jakyl.TestWeb.Controllers
             return PartialView(null, val);
         }
 
+        public PartialViewResult BasicGetPropertyValueAction(int id, string property)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            var val = type.GetPropertyValue(property);
+
+            return PartialView(null, val);
+        }
+
+        public PartialViewResult BasicGetPropertyValueTypeAction(int id, string property)
+        {
+            var type = Umbraco.TypedContent(id);
+
+            var val = type.GetPropertyValue<string>(property);
+
+            return PartialView(null, val);
+        }
+
         public PartialViewResult BasicPositionAction(int id)
         {
             var type = Umbraco.TypedContent(id);
