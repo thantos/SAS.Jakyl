@@ -268,6 +268,7 @@
     <Compile Include="Controllers\BasicTestSurfaceControllerTest.cs" />
     <Compile Include="Controllers\BasicTestUmbracoApiController.cs" />
     <Compile Include="Controllers\EngineTestRenderMvcControllerTest.cs" />
+    <Compile Include="Controllers\EngineTestServiceTestControllerTest.cs" />
     <Compile Include="Controllers\EngineTestUmbracoApiControllerTest.cs" />
     <Compile Include="Controllers\EngineTestSurfaceControllerTest.cs" />
     <Compile Include="Controllers\HelpersTestSurafaceControllerTest.cs" />
